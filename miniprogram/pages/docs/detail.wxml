@@ -1,0 +1,25 @@
+<view class="page" wx:if="{{doc}}">
+  <view class="card">
+    <view class="doc-title">📄 {{doc.name}}</view>
+    <view class="sub-text">{{doc.type}} · {{(doc.size / 1024).toFixed(0)}}KB · {{doc.created_at}}</view>
+    <view class="status-line">
+      <text class="tag {{doc.status === 'ready' ? 'tag-green' : doc.status === 'failed' ? 'tag-red' : 'tag-gray'}}">{{doc.status}}</text>
+      <text wx:if="{{doc.chunk_count}}" class="sub-text">{{doc.chunk_count}} 个分块</text>
+    </view>
+    <view wx:if="{{doc.fail_reason}}" class="fail-reason">原因：{{doc.fail_reason}}</view>
+    <view class="btn-primary" bindtap="askThisDoc">针对此文档提问</view>
+    <view class="btn-plain del" bindtap="deleteDoc">删除文档</view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">内容预览（前 {{chunks.length}} 块）</view>
+    <view wx:for="{{chunks}}" wx:key="id" class="chunk">
+      <view class="chunk-meta">
+        <text class="tag tag-gray">#{{item.seq}}</text>
+        <text wx:if="{{item.page_no}}" class="sub-text">p{{item.page_no}}</text>
+        <text wx:if="{{item.meta && item.meta.heading}}" class="sub-text">{{item.meta.heading}}</text>
+      </view>
+      <view class="chunk-content">{{item.content}}</view>
+    </view>
+  </view>
+</view>

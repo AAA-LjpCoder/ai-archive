@@ -1,0 +1,44 @@
+<view class="chat-page">
+  <!-- 模式开关 -->
+  <view class="mode-bar">
+    <view class="sub-text">{{mode === 'doc' ? '单文档问答' : '全局问答'}}</view>
+    <view class="search-only">
+      <text class="sub-text">仅检索</text>
+      <switch checked="{{searchOnly}}" bindchange="toggleSearchOnly" style="transform: scale(0.7)" />
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="msg-list" scroll-into-view="{{scrollTo}}" scroll-with-animation>
+    <view wx:if="{{messages.length === 0}}" class="welcome">
+      <view class="welcome-icon">🗂️</view>
+      <view>向你的知识库提问</view>
+      <view class="sub-text">回答会标注来源，可点击引用查看原文</view>
+    </view>
+
+    <view wx:for="{{messages}}" wx:key="id" class="msg {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}"
+          id="msg-{{index}}" data-index="{{index}}" bindtap="onAssistantTap">
+      <view class="bubble">
+        <text wx:if="{{item.content}}" user-select>{{item.content}}</text>
+        <text wx:elif="{{item.streaming}}" class="streaming-dot">● 思考中</text>
+        <view wx:if="{{item.citations && item.citations.length > 0}}" class="cites">
+          <view class="cite-title">📎 引用来源</view>
+          <view wx:for="{{item.citations}}" wx:for-item="c" wx:for-index="ci" wx:key="chunk_id"
+                class="cite-item" data-index="{{ci}}">
+            <text class="cite-idx">[{{ci + 1}}]</text>
+            <text class="cite-name">{{c.doc_name}}</text>
+            <text class="cite-page" wx:if="{{c.page_no}}">p{{c.page_no}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="input-bar">
+    <textarea class="input-box" value="{{input}}" bindinput="onInput"
+              placeholder="输入你的问题…" auto-height maxlength="2000"
+              confirm-type="send" bindconfirm="send" />
+    <view class="send-btn {{sending ? 'btn-disabled' : ''}}" bindtap="send">
+      {{sending ? '…' : '发送'}}
+    </view>
+  </view>
+</view>

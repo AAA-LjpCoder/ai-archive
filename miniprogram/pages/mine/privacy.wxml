@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">数据说明</view>
+    <view class="privacy-item">🔒 你的文档仅你本人可见（多租户隔离）</view>
+    <view class="privacy-item">🔐 数据全链路 HTTPS 传输</view>
+    <view class="privacy-item">🗑️ 删除文档 = 物理删除原文、向量与分块</view>
+    <view class="privacy-item">🤖 AI 回答由大模型生成，标注"AI 生成"，仅供辅助参考</view>
+    <view class="privacy-item">📄 上传内容将接受内容安全审核</view>
+  </view>
+
+  <view class="card">
+    <view class="section-title danger">危险操作</view>
+    <view class="btn-plain del" bindtap="clearAll">清空全部数据</view>
+  </view>
+</view>

@@ -1,0 +1,20 @@
+<view class="page">
+  <view wx:if="{{convs.length === 0 && !loading}}" class="empty card">
+    <view class="empty-icon">🗂️</view>
+    <view class="empty-text">还没有会话</view>
+    <view class="sub-text">点击下方按钮，开始向你的知识库提问</view>
+  </view>
+
+  <view wx:for="{{convs}}" wx:key="id" class="conv card" data-id="{{item.id}}" data-mode="{{item.mode}}" bindtap="openConversation">
+    <view class="conv-main">
+      <view class="conv-title">{{item.title}}</view>
+      <view class="sub-text">{{item.updated_at}}</view>
+    </view>
+    <view class="conv-actions">
+      <view wx:if="{{item.mode === 'doc'}}" class="tag tag-blue">单文档</view>
+      <view class="del-btn" catchtap="deleteConversation" data-id="{{item.id}}">删除</view>
+    </view>
+  </view>
+
+  <view class="fab" bindtap="newConversation">＋ 新问答</view>
+</view>

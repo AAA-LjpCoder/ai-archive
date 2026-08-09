@@ -1,0 +1,7 @@
+.file-box {
+  background: #F7F8FA; border: 2rpx dashed #C9CDD4;
+  border-radius: 12rpx; padding: 60rpx 24rpx;
+  text-align: center; margin: 16rpx 0;
+}
+.file-name { font-size: 28rpx; color: #1F6FEB; word-break: break-all; }
+.tips { margin-top: 16rpx; line-height: 1.6; }

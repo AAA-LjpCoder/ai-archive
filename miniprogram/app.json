@@ -1,0 +1,30 @@
+{
+  "pages": [
+    "pages/chat/index",
+    "pages/chat/detail",
+    "pages/docs/index",
+    "pages/docs/detail",
+    "pages/docs/upload",
+    "pages/mine/index",
+    "pages/mine/quota",
+    "pages/mine/privacy"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1F6FEB",
+    "navigationBarTitleText": "AI档案室",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#8A9099",
+    "selectedColor": "#1F6FEB",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      { "pagePath": "pages/chat/index", "text": "问答" },
+      { "pagePath": "pages/docs/index", "text": "文档库" },
+      { "pagePath": "pages/mine/index", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

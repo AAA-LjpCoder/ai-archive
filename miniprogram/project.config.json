@@ -1,0 +1,19 @@
+{
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true
+  },
+  "appid": "touristappid",
+  "projectname": "ai-archive",
+  "compileType": "miniprogram",
+  "libVersion": "3.0.0",
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}

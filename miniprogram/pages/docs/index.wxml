@@ -1,0 +1,23 @@
+<view class="page">
+  <view wx:if="{{docs.length === 0 && !loading}}" class="empty card">
+    <view class="empty-icon">📄</view>
+    <view class="empty-text">还没有文档</view>
+    <view class="sub-text">上传你的第一份文档，开始建立私人知识库</view>
+  </view>
+
+  <view wx:for="{{docs}}" wx:key="id" class="doc card" data-id="{{item.id}}" bindtap="goDetail">
+    <view class="doc-icon">📄</view>
+    <view class="doc-main">
+      <view class="doc-name">{{item.name}}</view>
+      <view class="sub-text">{{item.type}} · {{(item.size / 1024).toFixed(0)}}KB · {{item.created_at}}</view>
+      <view class="doc-status">
+        <text class="tag {{item.status === 'ready' ? 'tag-green' : item.status === 'failed' ? 'tag-red' : 'tag-gray'}}">{{statusText(item.status)}}</text>
+        <text wx:if="{{item.chunk_count}}" class="sub-text">{{item.chunk_count}} 块</text>
+      </view>
+      <view wx:if="{{item.fail_reason}}" class="fail-reason">原因：{{item.fail_reason}}</view>
+    </view>
+    <view class="del-btn" catchtap="deleteDoc" data-id="{{item.id}}" data-name="{{item.name}}">删除</view>
+  </view>
+
+  <view class="fab" bindtap="goUpload">＋ 上传文档</view>
+</view>

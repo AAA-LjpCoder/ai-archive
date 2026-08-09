@@ -1,0 +1,3 @@
+.privacy-item { padding: 14rpx 0; font-size: 28rpx; line-height: 1.6; }
+.danger { color: #D92D20; }
+.del { color: #D92D20; border-color: #D92D20; }

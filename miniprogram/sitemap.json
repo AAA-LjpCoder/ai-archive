@@ -1,0 +1,7 @@
+{
+  "desc": "AI档案室 sitemap",
+  "rules": [{
+    "action": "allow",
+    "page": "*"
+  }]
+}

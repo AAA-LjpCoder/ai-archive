@@ -1,0 +1,6 @@
+.progress-bar {
+  height: 16rpx; background: #EEF0F3; border-radius: 999rpx;
+  overflow: hidden; margin: 12rpx 0;
+}
+.progress-fill { height: 100%; background: #1F6FEB; border-radius: 999rpx; }
+.tips { margin-top: 16rpx; }

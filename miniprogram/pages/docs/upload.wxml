@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">选择文件</view>
+    <view class="file-box" bindtap="chooseFile">
+      <view wx:if="{{!fileName}}" class="sub-text">点击选择 txt / md / pdf / docx（≤20MB）</view>
+      <view wx:else class="file-name">📄 {{fileName}}</view>
+    </view>
+    <view class="btn-primary {{uploading ? 'btn-disabled' : ''}}" bindtap="upload">
+      {{uploading ? '上传中…' : '开始上传'}}
+    </view>
+    <view class="sub-text tips">
+      上传后自动解析并建立索引，处理完成即可提问。加密 PDF 或损坏文件会提示失败。
+    </view>
+  </view>
+</view>

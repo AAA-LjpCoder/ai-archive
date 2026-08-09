@@ -1,0 +1,19 @@
+.page { padding-bottom: 160rpx; }
+.empty { text-align: center; padding: 80rpx 28rpx; }
+.empty-icon { font-size: 80rpx; }
+.empty-text { font-size: 32rpx; font-weight: 600; margin: 20rpx 0 8rpx; }
+
+.doc { display: flex; align-items: flex-start; }
+.doc-icon { font-size: 48rpx; margin-right: 20rpx; }
+.doc-main { flex: 1; min-width: 0; }
+.doc-name { font-size: 30rpx; font-weight: 500; margin-bottom: 8rpx; word-break: break-all; }
+.doc-status { margin-top: 10rpx; display: flex; align-items: center; gap: 12rpx; }
+.fail-reason { color: #D92D20; font-size: 22rpx; margin-top: 8rpx; word-break: break-all; }
+.del-btn { color: #D92D20; font-size: 24rpx; padding: 8rpx; flex-shrink: 0; }
+
+.fab {
+  position: fixed; bottom: 60rpx; left: 50%; transform: translateX(-50%);
+  background: #1F6FEB; color: #fff; font-size: 30rpx;
+  padding: 22rpx 60rpx; border-radius: 999rpx;
+  box-shadow: 0 8rpx 24rpx rgba(31, 111, 235, 0.35);
+}

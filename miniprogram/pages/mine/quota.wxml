@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="card" wx:if="{{quota}}">
+    <view class="section-title">今日问答</view>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{(quota.used / quota.limit * 100) > 100 ? 100 : (quota.used / quota.limit * 100)}}%"></view>
+    </view>
+    <view class="sub-text">{{quota.used}} / {{quota.limit}} 轮</view>
+
+    <view class="section-title" style="margin-top: 32rpx">文档空间</view>
+    <view class="sub-text">文档 {{quota.docs}} / {{quota.docs_limit}} 个 · 已用 {{(quota.storage_bytes / 1024 / 1024).toFixed(1)}}MB / {{(quota.storage_limit / 1024 / 1024).toFixed(0)}}MB</view>
+
+    <view class="btn-primary" bindtap="watchAd">📺 看广告 +10 轮问答</view>
+    <view class="sub-text tips">广告解锁功能将在 M3 阶段接入正式广告组件</view>
+  </view>
+</view>
