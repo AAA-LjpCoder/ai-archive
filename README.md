@@ -10,36 +10,57 @@
 
 ```
 H:\AI\AI档案室\
-├── README.md            # 本文件：项目总览与目录说明
-├── docs/                # 📄 文档
-│   ├── PRD.md           # 产品需求文档 v1.0（定稿，唯一权威）
-│   └── PRD_v0.1_草稿.md  # 早期草稿（仅存档）
-├── backend/             # 🐍 FastAPI 后端（M1 起填充）
-│   └── (待开发：路由/异步worker/模型层)
-├── miniprogram/         # 📱 微信小程序前端（M1 起填充）
-│   └── (待开发：pages/chat, docs, mine)
-├── scripts/             # 🔧 工具脚本（部署/数据/测试）
-│   └── (待添加)
-└── data/                # 💾 数据目录（原始文件/备份，不入 git）
+├── README.md            # 本文件
+├── docs/                # 📄 文档（PRD 唯一权威：docs/PRD.md）
+├── backend/             # 🐍 FastAPI 后端
+│   ├── app/             #   主代码（config/db/models/schemas/auth）
+│   │   ├── routers/     #   API 路由（docs/chat/quota）
+│   │   └── services/    #   核心服务（parser/chunker/embedding/retrieval/llm/processor）
+│   ├── tests/           #   测试（parser/chunker/api）
+│   ├── requirements.txt #   依赖
+│   ├── docker-compose.yml # 可选：容器化 PG（镜像源问题，建议用本地 apt 装）
+│   └── .env.example     #   环境变量模板
+├── miniprogram/         # 📱 微信小程序前端（8 页面）
+│   └── pages/           #   chat(会话/对话) + docs(文档库/详情/上传) + mine(我的/额度/隐私)
+├── scripts/             # 🔧 脚本（setup_db / start_backend）
+└── data/                # 💾 运行数据（不入 git）
 ```
 
-## 🗺️ 开发路线
+## 🚀 本地启动（开发环境）
 
-| 阶段 | 内容 | 状态 |
-|------|------|:---:|
-| M0 | 环境准备（服务器/Docker/开发者工具） | ⏳ 未开始 |
-| M1 | MVP 自用版：上传→解析→向量化→流式问答+引用 | ⏳ 未开始 |
-| M2 | 微信登录 + 多租户隔离 + 单文档问答 + 会话 | ⏳ 未开始 |
-| M3 | 额度系统 + 激励视频 + 流量主 | ⏳ 未开始 |
-| M4 | 打磨 + 域名备案 + 上架 | ⏳ 未开始 |
+```bash
+# 1. 安装数据库（需要 sudo，只需一次）
+sudo bash scripts/setup_db.sh
+
+# 2. 配置密钥
+cd backend && cp .env.example .env
+#    编辑 .env 填入 LLM_API_KEY（DeepSeek）和 EMBEDDING_API_KEY（硅基流动 BGE-M3）
+
+# 3. 启动后端
+bash scripts/start_backend.sh        # → http://127.0.0.1:8000 （/health 验证）
+
+# 4. 跑测试
+cd backend && ./.venv/bin/python -m pytest tests/ -v
+
+# 5. 小程序
+#    用微信开发者工具导入 miniprogram/ 目录（已关闭域名校验，可直连本机后端）
+```
+
+## 🧪 当前状态（2026-08-09 晚，M1 进行中）
+
+| 模块 | 状态 |
+|------|:---:|
+| PRD v1.0 | ✅ 定稿 |
+| 后端代码（上传/解析/分块/向量化/混合检索/SSE 流式问答） | ✅ 已写 |
+| 小程序前端 8 页面 | ✅ 已写 |
+| 单元测试（parser/chunker） | ✅ 已写 |
+| API 集成测试 | ✅ 已写 |
+| 依赖安装 | ⏳ 进行中 |
+| PostgreSQL + pgvector | ⏳ 待执行 setup_db.sh |
+| 端到端验证（需 API key） | ⏳ 待 Tom 提供 key |
 
 ## 🔑 关键决策（详见 PRD §0）
 
-- 后端：自建 FastAPI（轻量云服务器）｜ 向量库：pgvector ｜ 模型：DeepSeek + BGE
-- 流式输出：**必须**（SSE）｜ 知识库：v1 单库 ｜ 额度：10 文档/100MB/20 轮每天
+- 后端：自建 FastAPI ｜ 向量库：PostgreSQL + pgvector ｜ 模型：DeepSeek + BGE-M3
+- 流式输出：必须（SSE）｜ 知识库：v1 单库 ｜ 额度：10 文档/100MB/20 轮每天
 - 合规：工具类目上架，AI 内容打标，多租户数据隔离
-
-## 📌 快速入口
-
-- 产品需求：见 [`docs/PRD.md`](docs/PRD.md)（开发前先读它）
-- 需求/问题反馈：直接微信找 Tom / 果仔
