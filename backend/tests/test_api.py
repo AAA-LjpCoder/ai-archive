@@ -52,7 +52,7 @@ def test_upload_txt_and_process(client, monkeypatch):
     import app.services.processor as processor_mod
     from app.services import embedding as emb_mod
 
-    fake_emb = [[0.1] * 1024, [0.2] * 1024]
+    fake_emb = [[0.1] * 4096, [0.2] * 4096]
     monkeypatch.setattr(
         processor_mod.embedding_client, "embed_texts", lambda texts, batch_size=16: fake_emb[: len(texts)]
     )
@@ -107,9 +107,9 @@ def test_conversation_and_ask_search_only(client, monkeypatch):
     from app.services import retrieval as retr_mod
     from app.services import processor as processor_mod
 
-    fake_emb = [[0.15] * 1024] * 20
+    fake_emb = [[0.15] * 4096] * 20
     monkeypatch.setattr(processor_mod.embedding_client, "embed_texts", lambda texts, batch_size=16: fake_emb[: len(texts)])
-    monkeypatch.setattr(emb_mod.embedding_client, "embed_one", lambda text: [0.1] * 1024)
+    monkeypatch.setattr(emb_mod.embedding_client, "embed_one", lambda text: [0.1] * 4096)
 
     # 准备一个文档
     content = "# 面试知识\n\nRAG 是检索增强生成，用于基于私有文档问答。"

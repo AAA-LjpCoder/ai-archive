@@ -15,9 +15,8 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.config import settings
 from app.db import Base
-
-EMBEDDING_DIM = 1024  # BGE-M3
 
 
 class User(Base):
@@ -66,7 +65,7 @@ class Chunk(Base):
     user_id: Mapped[str] = mapped_column(String(64))
     seq: Mapped[int] = mapped_column(Integer, default=0)
     content: Mapped[str] = mapped_column(Text)
-    embedding = mapped_column(Vector(EMBEDDING_DIM), nullable=True)
+    embedding = mapped_column(Vector(settings.embedding_dim), nullable=True)
     page_no: Mapped[int | None] = mapped_column(Integer, nullable=True)
     meta: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 

@@ -109,6 +109,11 @@ async def ask(
     if not body.search_only:
         _check_quota(db, user_id)
 
+    # StreamingResponse 生成器延迟执行：提前把 ORM 属性提取为局部变量，
+    # 避免会话关闭后访问 detached 实例报错（not bound to a Session）
+    conv_id_v, conv_user_id_v, conv_title_v = conv.id, conv.user_id, conv.title
+    conv_mode_v, conv_doc_id_v = conv.mode, conv.doc_id
+
     async def gen() -> AsyncGenerator[str, None]:
         try:
             # 1) 向量化问题
@@ -116,13 +121,14 @@ async def ask(
             # 2) 混合检索
             chunks = hybrid_search(
                 db, user_id, body.question, q_emb,
-                doc_id=conv.doc_id if conv.mode == "doc" else None,
+                doc_id=conv_doc_id_v if conv_mode_v == "doc" else None,
             )
             citations = [
                 {
                     "doc_id": c.doc_id,
                     "doc_name": _doc_name(db, c.doc_id),
-                    "snippet": c.content[:200],
+                    "content": c.content,  # 完整内容（LLM prompt 用）
+                    "snippet": c.content[:200],  # 截断片段（前端展示用）
                     "page_no": c.page_no,
                     "chunk_id": c.id,
                 }
@@ -135,7 +141,7 @@ async def ask(
                 answer = "你的文档中没有相关内容。" if not citations else "（仅检索模式）已找到以上相关片段。"
                 yield f"data: {json.dumps({'type': 'delta', 'data': answer}, ensure_ascii=False)}\n\n"
                 yield f"data: {json.dumps({'type': 'done'})}\n\n"
-                _save_pair(db, conv, body.question, answer, citations)
+                _save_pair(db, conv_id_v, conv_user_id_v, conv_title_v, body.question, answer, citations)
                 return
 
             # 4) LLM 流式生成
@@ -147,7 +153,7 @@ async def ask(
                 yield f"data: {json.dumps({'type': 'delta', 'data': delta}, ensure_ascii=False)}\n\n"
             answer = "".join(answer_parts)
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
-            _save_pair(db, conv, body.question, answer, citations)
+            _save_pair(db, conv_id_v, conv_user_id_v, conv_title_v, body.question, answer, citations)
         except Exception as exc:  # noqa: BLE001
             yield f"data: {json.dumps({'type': 'error', 'data': str(exc)[:300]}, ensure_ascii=False)}\n\n"
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
@@ -169,18 +175,20 @@ def _history(db: Session, conv_id: int) -> list[dict]:
     return [{"role": m.role, "content": m.content} for m in msgs]
 
 
-def _save_pair(db: Session, conv: Conversation, question: str, answer: str, citations: list) -> None:
-    db.add(Message(conversation_id=conv.id, user_id=conv.user_id, role="user", content=question))
+def _save_pair(db: Session, conv_id: int, conv_user_id: str, conv_title: str, question: str, answer: str, citations: list) -> None:
+    db.add(Message(conversation_id=conv_id, user_id=conv_user_id, role="user", content=question))
     db.add(
         Message(
-            conversation_id=conv.id, user_id=conv.user_id, role="assistant",
+            conversation_id=conv_id, user_id=conv_user_id, role="assistant",
             content=answer, citations=citations or None,
         )
     )
-    if conv.title == "新会话":
-        conv.title = question[:20]
+    if conv_title == "新会话":
+        c = db.get(Conversation, conv_id)
+        if c is not None:
+            c.title = question[:20]
     # 扣额度
-    user = db.get(User, conv.user_id)
+    user = db.get(User, conv_user_id)
     if user is not None:
         user.quota_used = (user.quota_used or 0) + 1
     db.commit()

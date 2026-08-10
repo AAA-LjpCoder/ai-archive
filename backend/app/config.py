@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     embedding_api_key: str = ""
     embedding_base_url: str = "https://api.siliconflow.cn/v1"
     embedding_model: str = "BAAI/bge-m3"
+    embedding_dim: int = 1024  # BGE-M3 1024 维（hnsw 上限 2000）
 
     # 文件存储
     upload_dir: Path = BASE_DIR / "data" / "uploads"
