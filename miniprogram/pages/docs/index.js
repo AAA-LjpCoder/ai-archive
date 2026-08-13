@@ -9,7 +9,7 @@ Page({
   async load() {
     try {
       const docs = await api.request('/api/docs');
-      this.setData({ docs, loading: false });
+      this.setData({ docs: docs.map((d) => ({ ...d, size_kb: (d.size / 1024).toFixed(0) })), loading: false });
     } catch (e) {
       this.setData({ loading: false });
       wx.showToast({ title: e.message, icon: 'none' });

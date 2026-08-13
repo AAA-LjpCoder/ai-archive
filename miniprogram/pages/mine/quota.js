@@ -6,7 +6,13 @@ Page({
 
   onShow() {
     api.request('/api/quota')
-      .then((quota) => this.setData({ quota }))
+      .then((quota) => this.setData({
+        quota: {
+          ...quota,
+          storage_used_mb: (quota.storage_bytes / 1024 / 1024).toFixed(1),
+          storage_limit_mb: (quota.storage_limit / 1024 / 1024).toFixed(0),
+        },
+      }))
       .catch((e) => wx.showToast({ title: e.message, icon: 'none' }));
   },
 

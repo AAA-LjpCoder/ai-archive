@@ -9,7 +9,7 @@
     <view class="doc-icon">📄</view>
     <view class="doc-main">
       <view class="doc-name">{{item.name}}</view>
-      <view class="sub-text">{{item.type}} · {{(item.size / 1024).toFixed(0)}}KB · {{item.created_at}}</view>
+      <view class="sub-text">{{item.type}} · {{item.size_kb}}KB · {{item.created_at}}</view>
       <view class="doc-status">
         <text class="tag {{item.status === 'ready' ? 'tag-green' : item.status === 'failed' ? 'tag-red' : 'tag-gray'}}">{{statusText(item.status)}}</text>
         <text wx:if="{{item.chunk_count}}" class="sub-text">{{item.chunk_count}} 块</text>

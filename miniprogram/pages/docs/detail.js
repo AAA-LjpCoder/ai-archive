@@ -15,7 +15,7 @@ Page({
         api.request(`/api/docs/${this.docId}`),
         api.request(`/api/docs/${this.docId}/chunks?limit=30`),
       ]);
-      this.setData({ doc, chunks });
+      this.setData({ doc: { ...doc, size_kb: (doc.size / 1024).toFixed(0) }, chunks });
     } catch (e) {
       wx.showToast({ title: e.message, icon: 'none' });
     }
