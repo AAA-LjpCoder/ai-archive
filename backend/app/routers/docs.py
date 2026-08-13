@@ -2,7 +2,7 @@
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -22,10 +22,12 @@ ALLOWED_TYPES = {"txt", "md", "markdown", "pdf", "docx"}
 async def upload_doc(
     background: BackgroundTasks,
     file: UploadFile = File(...),
+    filename: str | None = Form(default=None),  # 原始文件名（微信上传时 file.filename 是临时路径名）
     db: Session = Depends(get_db),
     user_id: str = Depends(get_current_user),
 ):
-    ftype = (file.filename or "").rsplit(".", 1)[-1].lower()
+    raw_name = (filename or file.filename or "").strip()
+    ftype = raw_name.rsplit(".", 1)[-1].lower() if "." in raw_name else ""
     if ftype not in ALLOWED_TYPES:
         raise HTTPException(400, f"不支持的文件格式: {ftype}（支持 txt/md/pdf/docx）")
 
@@ -54,7 +56,7 @@ async def upload_doc(
 
     doc = Document(
         user_id=user_id,
-        name=file.filename or store_name,
+        name=raw_name or store_name,
         type="md" if ftype == "markdown" else ftype,
         size=len(content),
         status="pending",

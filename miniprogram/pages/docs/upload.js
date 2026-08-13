@@ -24,7 +24,7 @@ Page({
     if (!this.data.filePath || this.data.uploading) return;
     this.setData({ uploading: true });
     wx.showLoading({ title: '上传中' });
-    api.uploadFile('/api/docs/upload', this.data.filePath)
+    api.uploadFile('/api/docs/upload', this.data.filePath, 'file', { filename: this.data.fileName })
       .then((doc) => {
         wx.hideLoading();
         this.setData({ uploading: false, filePath: '', fileName: '' });

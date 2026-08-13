@@ -21,13 +21,14 @@ function request(path, method = 'GET', data = null) {
   });
 }
 
-// 上传文件
-function uploadFile(path, filePath, name = 'file') {
+// 上传文件（formData 可携带额外字段，如原始文件名）
+function uploadFile(path, filePath, name = 'file', formData = {}) {
   return new Promise((resolve, reject) => {
     wx.uploadFile({
       url: baseUrl() + path,
       filePath,
       name,
+      formData,
       success: (res) => {
         try {
           const data = JSON.parse(res.data);
