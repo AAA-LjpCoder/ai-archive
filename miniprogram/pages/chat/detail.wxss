@@ -44,6 +44,35 @@
 
 .streaming-dot { color: #9B9488; }
 
+/* 思考中三点跳动动画 */
+.thinking { display: flex; align-items: center; gap: 10rpx; padding: 8rpx 0; }
+.thinking .dot {
+  width: 10rpx; height: 10rpx; border-radius: 50%;
+  background: #146B5A;
+  animation: blink 1.2s infinite ease-in-out;
+}
+.thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+.thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+/* 快捷提问卡片 */
+.quick-list { margin-top: 48rpx; }
+.quick-item {
+  background: #fff;
+  border: 1rpx solid #EFEBE4;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  margin: 0 40rpx 20rpx;
+  font-size: 28rpx;
+  color: #146B5A;
+  box-shadow: 0 2rpx 10rpx rgba(45, 42, 38, 0.04);
+  text-align: left;
+}
+.quick-item:active { background: #F2F7F5; }
+
 .cites { margin-top: 16rpx; border-top: 1rpx solid #EFEBE4; padding-top: 12rpx; }
 .cite-title { font-size: 22rpx; color: #146B5A; font-weight: 600; margin-bottom: 8rpx; }
 .cite-item {

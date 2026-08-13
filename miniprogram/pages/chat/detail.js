@@ -1,11 +1,12 @@
-// pages/chat/detail.js — 对话页（流式 + 引用）
+// pages/chat/detail.js — 对话页（流式 + 引用 + Markdown 渲染）
 const api = require('../../utils/api');
+const { mdToNodes } = require('../../utils/md2nodes');
 
 Page({
   data: {
     convId: null,
     mode: 'global',
-    messages: [],       // {role, content, citations, streaming}
+    messages: [],       // {role, content, nodes, citations, streaming}
     input: '',
     searchOnly: false,
     sending: false,
@@ -20,7 +21,13 @@ Page({
   async loadHistory() {
     try {
       const msgs = await api.request(`/api/conversations/${this.data.convId}/messages`);
-      this.setData({ messages: msgs.map((m) => ({ ...m, streaming: false })) });
+      this.setData({
+        messages: msgs.map((m) => ({
+          ...m,
+          streaming: false,
+          nodes: m.role === 'assistant' ? mdToNodes(m.content) : null,
+        })),
+      });
       this.scrollBottom();
     } catch (e) {
       wx.showToast({ title: e.message, icon: 'none' });
@@ -36,6 +43,11 @@ Page({
     this.setData({ scrollTo: len > 0 ? `msg-${len - 1}` : '' });
   },
 
+  quickAsk(e) {
+    const q = e.currentTarget.dataset.q;
+    this.setData({ input: q }, () => this.send());
+  },
+
   send() {
     const q = this.data.input.trim();
     if (!q || this.data.sending) return;
@@ -43,49 +55,52 @@ Page({
     const messages = [...this.data.messages];
     const uid = Date.now() + '-' + Math.random().toString(36).slice(2, 6);
     messages.push({ id: `u-${uid}`, role: 'user', content: q, streaming: false });
-    messages.push({ id: `a-${uid}`, role: 'assistant', content: '', citations: null, streaming: true });
+    messages.push({ id: `a-${uid}`, role: 'assistant', content: '', nodes: [], citations: null, streaming: true });
     this.setData({ messages, input: '', sending: true });
     this.scrollBottom();
 
-    const assistant = messages[messages.length - 1];
     let answer = '';
     let citations = null;
 
     api.streamAsk(this.data.convId, q, this.data.searchOnly, (evt) => {
+      const idx = messages.length - 1;
       if (evt.type === 'citations') {
         citations = evt.data;
-        this.setData({ [`messages[${messages.length - 1}].citations`]: citations });
+        this.setData({ [`messages[${idx}].citations`]: citations });
       } else if (evt.type === 'delta') {
         answer += evt.data;
-        this.setData({ [`messages[${messages.length - 1}].content`]: answer });
+        this.setData({
+          [`messages[${idx}].content`]: answer,
+          [`messages[${idx}].nodes`]: mdToNodes(answer),
+        });
         this.scrollBottom();
       } else if (evt.type === 'error') {
         answer = '出错了：' + evt.data;
-        this.setData({ [`messages[${messages.length - 1}].content`]: answer, sending: false, [`messages[${messages.length - 1}].streaming`]: false });
+        this.setData({
+          [`messages[${idx}].content`]: answer,
+          [`messages[${idx}].nodes`]: mdToNodes(answer),
+          sending: false,
+          [`messages[${idx}].streaming`]: false,
+        });
         wx.showToast({ title: evt.data, icon: 'none' });
       } else if (evt.type === 'done') {
-        this.setData({ sending: false, [`messages[${messages.length - 1}].streaming`]: false });
+        this.setData({ sending: false, [`messages[${idx}].streaming`]: false });
         this.scrollBottom();
       }
     });
   },
 
   onCitationTap(e) {
-    const { index } = e.currentTarget.dataset;
-    const citations = this.data.messages[this.data.citationMsgIndex || 0].citations;
-    // 简单展示：弹窗显示引用来源
-    const c = (this.data.lastCitations || [])[index];
+    const { cidx, msgidx } = e.currentTarget.dataset;
+    const msg = this.data.messages[msgidx];
+    if (!msg || !msg.citations) return;
+    const c = msg.citations[cidx];
     if (!c) return;
     wx.showModal({
-      title: c.doc_name,
-      content: `第${c.page_no || '-'}页\n\n${c.snippet}`,
+      title: `${c.doc_name}${c.page_no ? ' · p' + c.page_no : ''}`,
+      content: c.snippet,
       showCancel: false,
+      confirmText: '知道了',
     });
-  },
-
-  onAssistantTap(e) {
-    const { index } = e.currentTarget.dataset;
-    const msg = this.data.messages[index];
-    if (msg && msg.citations) this.setData({ lastCitations: msg.citations });
   },
 });

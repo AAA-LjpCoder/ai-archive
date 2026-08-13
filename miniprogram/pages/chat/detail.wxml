@@ -12,17 +12,28 @@
     <view wx:if="{{messages.length === 0}}" class="welcome">
       <view class="welcome-title">向资料库提问</view>
       <view class="sub-text">回答会标注引用来源，可点开查看原文</view>
+      <view class="quick-list">
+        <view class="quick-item" bindtap="quickAsk" data-q="总结一下我资料库里的内容">总结一下资料库里的内容</view>
+        <view class="quick-item" bindtap="quickAsk" data-q="文档里提到了哪些功能？">文档里提到了哪些功能？</view>
+        <view class="quick-item" bindtap="quickAsk" data-q="有哪些版本规划？">有哪些版本规划？</view>
+      </view>
     </view>
 
     <view wx:for="{{messages}}" wx:key="id" class="msg {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}"
-          id="msg-{{index}}" data-index="{{index}}" bindtap="onAssistantTap">
+          id="msg-{{index}}">
       <view class="bubble">
-        <text wx:if="{{item.content}}" user-select>{{item.content}}</text>
-        <text wx:elif="{{item.streaming}}" class="streaming-dot">正在思考…</text>
+        <text wx:if="{{item.role === 'user' && item.content}}" user-select>{{item.content}}</text>
+        <rich-text wx:elif="{{item.role === 'assistant' && item.nodes && item.nodes.length > 0}}"
+                   nodes="{{item.nodes}}" selectable />
+        <view wx:elif="{{item.streaming}}" class="thinking">
+          <view class="dot"></view>
+          <view class="dot"></view>
+          <view class="dot"></view>
+        </view>
         <view wx:if="{{item.citations && item.citations.length > 0}}" class="cites">
           <view class="cite-title">引用来源</view>
           <view wx:for="{{item.citations}}" wx:for-item="c" wx:for-index="ci" wx:key="chunk_id"
-                class="cite-item" data-index="{{ci}}">
+                class="cite-item" data-cidx="{{ci}}" data-msgidx="{{index}}" bindtap="onCitationTap">
             <text class="cite-idx">[{{ci + 1}}]</text>
             <text class="cite-name">{{c.doc_name}}</text>
             <text class="cite-page" wx:if="{{c.page_no}}">p{{c.page_no}}</text>
