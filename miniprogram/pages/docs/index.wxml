@@ -1,5 +1,23 @@
 <view class="page">
+  <view class="hero">
+    <view>
+      <view class="hero-title">文档库</view>
+      <view class="hero-sub">上传文档 · 自动解析建索引</view>
+    </view>
+    <view class="hero-art">
+      <view class="art-box"></view>
+      <view class="art-tag"></view>
+    </view>
+  </view>
+
   <view wx:if="{{docs.length === 0 && !loading}}" class="empty">
+    <view class="empty-art">
+      <view class="ea-box"></view>
+      <view class="ea-line l1"></view>
+      <view class="ea-line l2"></view>
+      <view class="ea-line l3"></view>
+      <view class="ea-corner"></view>
+    </view>
     <view class="empty-text">还没有文档</view>
     <view class="sub-text">上传一份文档，开始建立你的资料库</view>
   </view>
@@ -7,8 +25,9 @@
   <view wx:for="{{docs}}" wx:key="id" class="doc" data-id="{{item.id}}" bindtap="goDetail">
     <view class="doc-main">
       <view class="doc-name">{{item.name}}</view>
-      <view class="sub-text">{{item.type}} · {{item.size_kb}}KB · {{item.created_at}}</view>
+      <view class="sub-text">{{item.size_kb}}KB · {{item.created_at}}</view>
       <view class="doc-status">
+        <text class="tag {{item.type_class}}">{{item.type}}</text>
         <text class="tag {{item.status === 'ready' ? 'tag-green' : item.status === 'failed' ? 'tag-red' : 'tag-gray'}}">{{statusText(item.status)}}</text>
         <text wx:if="{{item.chunk_count}}" class="sub-text">{{item.chunk_count}} 块</text>
       </view>

@@ -1,4 +1,4 @@
 /* pages/mine/privacy.wxss */
 .privacy-item { padding: 14rpx 0; font-size: 28rpx; line-height: 1.6; }
-.danger { color: #D44C47; }
-.del { color: #D44C47; border-color: #D44C47; }
+.danger { color: #B4492E; }
+.del { color: #B4492E; border-color: #B4492E; }

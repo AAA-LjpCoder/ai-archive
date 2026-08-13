@@ -1,5 +1,23 @@
 <view class="page">
+  <view class="hero">
+    <view>
+      <view class="hero-title">问答</view>
+      <view class="hero-sub">向资料库提问 · 回答带引用出处</view>
+    </view>
+    <view class="hero-art">
+      <view class="art-box"></view>
+      <view class="art-tag"></view>
+    </view>
+  </view>
+
   <view wx:if="{{convs.length === 0 && !loading}}" class="empty">
+    <view class="empty-art">
+      <view class="ea-box"></view>
+      <view class="ea-line l1"></view>
+      <view class="ea-line l2"></view>
+      <view class="ea-line l3"></view>
+      <view class="ea-corner"></view>
+    </view>
     <view class="empty-text">还没有会话</view>
     <view class="sub-text">点右下角按钮开始提问</view>
   </view>
@@ -10,7 +28,7 @@
       <view class="sub-text">{{item.updated_at}}</view>
     </view>
     <view class="conv-actions">
-      <view wx:if="{{item.mode === 'doc'}}" class="tag tag-blue">单文档</view>
+      <view wx:if="{{item.mode === 'doc'}}" class="tag tag-gold">单文档</view>
       <view class="del-btn" catchtap="deleteConversation" data-id="{{item.id}}">删除</view>
     </view>
   </view>

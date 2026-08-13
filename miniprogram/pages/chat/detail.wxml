@@ -4,7 +4,7 @@
     <view class="sub-text">{{mode === 'doc' ? '单文档问答' : '全局问答'}}</view>
     <view class="search-only">
       <text class="sub-text">仅检索</text>
-      <switch checked="{{searchOnly}}" bindchange="toggleSearchOnly" style="transform: scale(0.7)" />
+      <switch checked="{{searchOnly}}" bindchange="toggleSearchOnly" color="#146B5A" style="transform: scale(0.7)" />
     </view>
   </view>
 

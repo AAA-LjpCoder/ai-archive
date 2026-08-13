@@ -1,6 +1,8 @@
 // pages/docs/detail.js — 文档详情
 const api = require('../../utils/api');
 
+const TYPE_CLASS = { md: 'tag-type-md', markdown: 'tag-type-md', pdf: 'tag-type-pdf', docx: 'tag-type-docx', txt: 'tag-type-txt' };
+
 Page({
   data: { doc: null, chunks: [] },
 
@@ -15,7 +17,7 @@ Page({
         api.request(`/api/docs/${this.docId}`),
         api.request(`/api/docs/${this.docId}/chunks?limit=30`),
       ]);
-      this.setData({ doc: { ...doc, size_kb: (doc.size / 1024).toFixed(0) }, chunks });
+      this.setData({ doc: { ...doc, size_kb: (doc.size / 1024).toFixed(0), type_class: TYPE_CLASS[doc.type] || 'tag-type-txt' }, chunks });
     } catch (e) {
       wx.showToast({ title: e.message, icon: 'none' });
     }

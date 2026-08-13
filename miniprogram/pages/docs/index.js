@@ -1,6 +1,8 @@
 // pages/docs/index.js — 文档库
 const api = require('../../utils/api');
 
+const TYPE_CLASS = { md: 'tag-type-md', markdown: 'tag-type-md', pdf: 'tag-type-pdf', docx: 'tag-type-docx', txt: 'tag-type-txt' };
+
 Page({
   data: { docs: [], loading: true },
 
@@ -9,7 +11,7 @@ Page({
   async load() {
     try {
       const docs = await api.request('/api/docs');
-      this.setData({ docs: docs.map((d) => ({ ...d, size_kb: (d.size / 1024).toFixed(0) })), loading: false });
+      this.setData({ docs: docs.map((d) => ({ ...d, size_kb: (d.size / 1024).toFixed(0), type_class: TYPE_CLASS[d.type] || 'tag-type-txt' })), loading: false });
     } catch (e) {
       this.setData({ loading: false });
       wx.showToast({ title: e.message, icon: 'none' });

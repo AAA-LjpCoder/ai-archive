@@ -1,7 +1,7 @@
 /* pages/mine/quota.wxss */
 .progress-bar {
-  height: 8rpx; background: #F1F1EF; border-radius: 4rpx;
+  height: 10rpx; background: #F1EDE7; border-radius: 5rpx;
   overflow: hidden; margin: 16rpx 0;
 }
-.progress-fill { height: 100%; background: #2383E2; border-radius: 4rpx; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #146B5A, #1E8873); border-radius: 5rpx; }
 .tips { margin-top: 16rpx; }

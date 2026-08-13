@@ -1,10 +1,10 @@
 /* pages/docs/detail.wxss */
-.doc-title { font-size: 34rpx; font-weight: 600; margin-bottom: 8rpx; word-break: break-all; }
-.status-line { margin: 16rpx 0; display: flex; align-items: center; gap: 12rpx; }
-.fail-reason { color: #D44C47; font-size: 24rpx; margin-bottom: 12rpx; word-break: break-all; }
-.del { color: #D44C47; border-color: #D44C47; }
+.doc-title { font-size: 34rpx; font-weight: 600; margin-bottom: 12rpx; word-break: break-all; }
+.doc-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8rpx; }
+.fail-reason { color: #B4492E; font-size: 24rpx; margin: 12rpx 0; word-break: break-all; }
+.del { color: #B4492E; border-color: #B4492E; }
 
-.chunk { border-bottom: 1rpx solid #F0F0EE; padding: 16rpx 0; }
+.chunk { border-bottom: 1rpx solid #EFEBE4; padding: 16rpx 0; }
 .chunk:last-child { border-bottom: none; }
 .chunk-meta { display: flex; align-items: center; gap: 12rpx; margin-bottom: 8rpx; }
-.chunk-content { font-size: 26rpx; color: #4B5563; line-height: 1.6; }
+.chunk-content { font-size: 26rpx; color: #57534A; line-height: 1.6; }

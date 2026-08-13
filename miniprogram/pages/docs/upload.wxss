@@ -1,8 +1,8 @@
 /* pages/docs/upload.wxss */
 .file-box {
-  background: #F7F7F5; border: 1rpx dashed #C9C9C6;
-  border-radius: 8rpx; padding: 60rpx 24rpx;
+  background: #F7F3EC; border: 2rpx dashed #C9BCA4;
+  border-radius: 16rpx; padding: 60rpx 24rpx;
   text-align: center; margin: 16rpx 0;
 }
-.file-name { font-size: 28rpx; color: #37352F; font-weight: 500; word-break: break-all; }
+.file-name { font-size: 28rpx; color: #146B5A; font-weight: 500; word-break: break-all; }
 .tips { margin-top: 16rpx; line-height: 1.6; }

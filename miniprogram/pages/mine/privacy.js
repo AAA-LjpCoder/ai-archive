@@ -6,7 +6,7 @@ Page({
     wx.showModal({
       title: '清空全部数据',
       content: '将删除所有文档、向量和会话记录，且不可恢复。确认？',
-      confirmColor: '#D92D20',
+      confirmColor: '#B4492E',
       success: async (res) => {
         if (!res.confirm) return;
         wx.showLoading({ title: '清理中' });
