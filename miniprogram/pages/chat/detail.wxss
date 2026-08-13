@@ -8,7 +8,12 @@
 }
 .search-only { display: flex; align-items: center; }
 
-.msg-list { flex: 1; padding: 20rpx 24rpx; box-sizing: border-box; }
+.msg-list {
+  flex: 1;
+  min-height: 0; /* 关键：flex 容器不设 min-height:0 时会被内容撑开，把输入栏挤出屏幕 */
+  padding: 20rpx 24rpx;
+  box-sizing: border-box;
+}
 .welcome { text-align: center; margin-top: 140rpx; color: #9B9488; }
 .welcome-title { font-size: 32rpx; font-weight: 600; color: #2D2A26; margin-bottom: 8rpx; }
 

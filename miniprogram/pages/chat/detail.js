@@ -31,7 +31,9 @@ Page({
   toggleSearchOnly(e) { this.setData({ searchOnly: e.detail.value }); },
 
   scrollBottom() {
-    this.setData({ scrollTo: `msg-${this.data.messages.length}` });
+    // 必须指向真实存在的节点，否则 scroll-into-view 找不到目标可能引发渲染层异常
+    const len = this.data.messages.length;
+    this.setData({ scrollTo: len > 0 ? `msg-${len - 1}` : '' });
   },
 
   send() {
@@ -39,8 +41,9 @@ Page({
     if (!q || this.data.sending) return;
 
     const messages = [...this.data.messages];
-    messages.push({ role: 'user', content: q, streaming: false });
-    messages.push({ role: 'assistant', content: '', citations: null, streaming: true });
+    const uid = Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+    messages.push({ id: `u-${uid}`, role: 'user', content: q, streaming: false });
+    messages.push({ id: `a-${uid}`, role: 'assistant', content: '', citations: null, streaming: true });
     this.setData({ messages, input: '', sending: true });
     this.scrollBottom();
 
