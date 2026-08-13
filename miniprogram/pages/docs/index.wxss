@@ -4,12 +4,30 @@
 .empty { text-align: center; padding: 100rpx 28rpx 60rpx; }
 .empty-text { font-size: 32rpx; font-weight: 600; margin: 0 0 8rpx; }
 
+/* 文档卡片：白底 + 大圆角 + 轻阴影，独立档案袋感 */
 .doc {
-  display: flex; align-items: flex-start;
-  padding: 28rpx 32rpx;
-  border-bottom: 1rpx solid #EFEBE4;
+  display: flex;
+  align-items: center;
+  padding: 28rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 6rpx 20rpx rgba(45, 42, 38, 0.06);
 }
-.doc:active { background: #F4F1EB; }
+.doc:active { background: #F7F5F0; }
+
+/* 文件类型图标：彩色方块 + 类型缩写 */
+.doc-icon {
+  width: 76rpx; height: 88rpx;
+  border-radius: 14rpx;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24rpx; font-weight: 700; color: #fff;
+  flex-shrink: 0; margin-right: 24rpx;
+  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.15);
+}
+.icon-md { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+.icon-pdf { background: linear-gradient(135deg, #EF4444, #DC2626); }
+.icon-docx { background: linear-gradient(135deg, #3B6FE0, #1D4ED8); }
+.icon-txt { background: linear-gradient(135deg, #8A8075, #6B7280); }
+
 .doc-main { flex: 1; min-width: 0; }
 .doc-name { font-size: 30rpx; margin-bottom: 6rpx; word-break: break-all; }
 .doc-status { margin-top: 10rpx; display: flex; align-items: center; gap: 12rpx; }

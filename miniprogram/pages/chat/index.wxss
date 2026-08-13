@@ -4,14 +4,32 @@
 .empty { text-align: center; padding: 100rpx 28rpx 60rpx; }
 .empty-text { font-size: 32rpx; font-weight: 600; margin: 0 0 8rpx; }
 
+/* 会话卡片：白底 + 大圆角 + 轻阴影 */
 .conv {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 28rpx 32rpx;
-  border-bottom: 1rpx solid #EFEBE4;
+  display: flex;
+  align-items: center;
+  padding: 28rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 6rpx 20rpx rgba(45, 42, 38, 0.06);
 }
-.conv:active { background: #F4F1EB; }
+.conv:active { background: #F7F5F0; }
+
+/* 对话气泡图标（纯 CSS） */
+.conv-icon {
+  width: 76rpx; height: 76rpx;
+  border-radius: 18rpx;
+  background: #E3EFEA;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10rpx;
+  flex-shrink: 0; margin-right: 24rpx;
+}
+.ci-line { width: 36rpx; height: 6rpx; border-radius: 3rpx; background: #146B5A; opacity: 0.75; }
+.ci-line-short { width: 24rpx; }
+
+.conv-main { flex: 1; min-width: 0; }
 .conv-title { font-size: 30rpx; margin-bottom: 6rpx; }
-.conv-actions { display: flex; align-items: center; }
+.conv-actions { display: flex; align-items: center; flex-shrink: 0; }
 .del-btn { color: #B4492E; font-size: 24rpx; margin-left: 16rpx; padding: 8rpx; }
 
 .fab {

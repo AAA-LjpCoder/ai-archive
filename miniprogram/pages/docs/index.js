@@ -2,6 +2,13 @@
 const api = require('../../utils/api');
 
 const TYPE_CLASS = { md: 'tag-type-md', markdown: 'tag-type-md', pdf: 'tag-type-pdf', docx: 'tag-type-docx', txt: 'tag-type-txt' };
+const TYPE_ICON = {
+  md: { cls: 'icon-md', label: 'MD' },
+  markdown: { cls: 'icon-md', label: 'MD' },
+  pdf: { cls: 'icon-pdf', label: 'PDF' },
+  docx: { cls: 'icon-docx', label: 'DOC' },
+  txt: { cls: 'icon-txt', label: 'TXT' },
+};
 
 Page({
   data: { docs: [], loading: true },
@@ -11,7 +18,10 @@ Page({
   async load() {
     try {
       const docs = await api.request('/api/docs');
-      this.setData({ docs: docs.map((d) => ({ ...d, size_kb: (d.size / 1024).toFixed(0), type_class: TYPE_CLASS[d.type] || 'tag-type-txt' })), loading: false });
+      this.setData({ docs: docs.map((d) => {
+        const icon = TYPE_ICON[d.type] || { cls: 'icon-txt', label: d.type.toUpperCase().slice(0, 3) };
+        return { ...d, size_kb: (d.size / 1024).toFixed(0), type_class: TYPE_CLASS[d.type] || 'tag-type-txt', type_icon_cls: icon.cls, type_icon_label: icon.label };
+      }), loading: false });
     } catch (e) {
       this.setData({ loading: false });
       wx.showToast({ title: e.message, icon: 'none' });

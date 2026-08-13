@@ -22,7 +22,11 @@
     <view class="sub-text">点右下角按钮开始提问</view>
   </view>
 
-  <view wx:for="{{convs}}" wx:key="id" class="conv" data-id="{{item.id}}" data-mode="{{item.mode}}" bindtap="openConversation">
+  <view wx:for="{{convs}}" wx:key="id" class="card conv" data-id="{{item.id}}" data-mode="{{item.mode}}" bindtap="openConversation">
+    <view class="conv-icon">
+      <view class="ci-line"></view>
+      <view class="ci-line ci-line-short"></view>
+    </view>
     <view class="conv-main">
       <view class="conv-title">{{item.title}}</view>
       <view class="sub-text">{{item.updated_at}}</view>
