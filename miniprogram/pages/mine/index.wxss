@@ -1,14 +1,17 @@
-.avatar-line { display: flex; align-items: center; gap: 20rpx; }
+/* pages/mine/index.wxss */
+.profile { display: flex; align-items: center; gap: 24rpx; }
 .avatar {
-  width: 96rpx; height: 96rpx; border-radius: 50%;
-  background: #E8F0FE; display: flex; align-items: center; justify-content: center;
-  font-size: 48rpx;
+  width: 88rpx; height: 88rpx; border-radius: 8rpx;
+  background: #37352F; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40rpx; font-weight: 600;
 }
-.name { font-size: 32rpx; font-weight: 600; }
+.name { font-size: 32rpx; font-weight: 600; margin-bottom: 4rpx; }
 
+.menu { padding: 24rpx 32rpx; }
 .menu-line {
   display: flex; justify-content: space-between; align-items: center;
-  font-size: 30rpx; padding: 8rpx 0;
+  font-size: 30rpx;
 }
-.arrow { color: #C9CDD4; font-size: 36rpx; }
-.footer { text-align: center; color: #C9CDD4; font-size: 24rpx; margin-top: 60rpx; }
+.arrow { color: #C9C9C6; font-size: 36rpx; }
+.footer { text-align: center; color: #C9C9C6; font-size: 24rpx; margin-top: 60rpx; }

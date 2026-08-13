@@ -53,4 +53,8 @@ Page({
       },
     });
   },
+
+  statusText(status) {
+    return { pending: '排队中', processing: '处理中', ready: '就绪', failed: '失败' }[status] || status;
+  },
 });

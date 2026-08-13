@@ -57,7 +57,7 @@ Page({
         this.setData({ [`messages[${messages.length - 1}].content`]: answer });
         this.scrollBottom();
       } else if (evt.type === 'error') {
-        answer = '⚠️ ' + evt.data;
+        answer = '出错了：' + evt.data;
         this.setData({ [`messages[${messages.length - 1}].content`]: answer, sending: false, [`messages[${messages.length - 1}].streaming`]: false });
         wx.showToast({ title: evt.data, icon: 'none' });
       } else if (evt.type === 'done') {

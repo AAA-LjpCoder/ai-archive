@@ -1,17 +1,15 @@
 <view class="page">
-  <view class="card">
-    <view class="avatar-line">
-      <view class="avatar">🍊</view>
-      <view>
-        <view class="name">AI档案室</view>
-        <view class="sub-text">私人知识库 · v0.1</view>
-      </view>
+  <view class="card profile">
+    <view class="avatar">档</view>
+    <view>
+      <view class="name">AI档案室</view>
+      <view class="sub-text">私人知识库 · v0.1</view>
     </view>
   </view>
 
-  <view class="card" bindtap="goQuota">
+  <view class="card menu" bindtap="goQuota">
     <view class="menu-line">
-      <text>📊 我的额度</text>
+      <text>我的额度</text>
       <text class="arrow">›</text>
     </view>
     <view class="sub-text" wx:if="{{quota}}">
@@ -19,20 +17,20 @@
     </view>
   </view>
 
-  <view class="card" bindtap="goPrivacy">
+  <view class="card menu" bindtap="goPrivacy">
     <view class="menu-line">
-      <text>🔒 隐私与数据</text>
+      <text>隐私与数据</text>
       <text class="arrow">›</text>
     </view>
   </view>
 
-  <view class="card">
+  <view class="card menu">
     <view class="menu-line">
-      <text>📞 反馈</text>
+      <text>反馈</text>
       <text class="arrow">›</text>
     </view>
     <view class="sub-text">自用阶段：直接微信联系开发者</view>
   </view>
 
-  <view class="footer">AI档案室 · 上传即问，回答必带出处</view>
+  <view class="footer">AI档案室 · 私有知识库问答</view>
 </view>

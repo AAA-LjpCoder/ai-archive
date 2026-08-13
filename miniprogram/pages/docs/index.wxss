@@ -1,19 +1,25 @@
+/* pages/docs/index.wxss */
 .page { padding-bottom: 160rpx; }
-.empty { text-align: center; padding: 80rpx 28rpx; }
-.empty-icon { font-size: 80rpx; }
-.empty-text { font-size: 32rpx; font-weight: 600; margin: 20rpx 0 8rpx; }
 
-.doc { display: flex; align-items: flex-start; }
-.doc-icon { font-size: 48rpx; margin-right: 20rpx; }
+.empty { text-align: center; padding: 140rpx 28rpx 60rpx; }
+.empty-text { font-size: 32rpx; font-weight: 600; margin: 0 0 8rpx; }
+
+.doc {
+  display: flex; align-items: flex-start;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid #F0F0EE;
+}
+.doc:active { background: #F7F7F5; }
 .doc-main { flex: 1; min-width: 0; }
-.doc-name { font-size: 30rpx; font-weight: 500; margin-bottom: 8rpx; word-break: break-all; }
+.doc-name { font-size: 30rpx; margin-bottom: 6rpx; word-break: break-all; }
 .doc-status { margin-top: 10rpx; display: flex; align-items: center; gap: 12rpx; }
-.fail-reason { color: #D92D20; font-size: 22rpx; margin-top: 8rpx; word-break: break-all; }
-.del-btn { color: #D92D20; font-size: 24rpx; padding: 8rpx; flex-shrink: 0; }
+.fail-reason { color: #D44C47; font-size: 22rpx; margin-top: 8rpx; word-break: break-all; }
+.del-btn { color: #D44C47; font-size: 24rpx; padding: 8rpx; flex-shrink: 0; }
 
 .fab {
   position: fixed; bottom: 60rpx; left: 50%; transform: translateX(-50%);
-  background: #1F6FEB; color: #fff; font-size: 30rpx;
-  padding: 22rpx 60rpx; border-radius: 999rpx;
-  box-shadow: 0 8rpx 24rpx rgba(31, 111, 235, 0.35);
+  background: #37352F; color: #fff; font-size: 30rpx;
+  padding: 22rpx 56rpx; border-radius: 8rpx;
+  box-shadow: 0 4rpx 16rpx rgba(55, 53, 47, 0.18);
 }
+.fab:active { opacity: 0.9; }

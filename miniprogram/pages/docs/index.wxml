@@ -1,12 +1,10 @@
 <view class="page">
-  <view wx:if="{{docs.length === 0 && !loading}}" class="empty card">
-    <view class="empty-icon">📄</view>
+  <view wx:if="{{docs.length === 0 && !loading}}" class="empty">
     <view class="empty-text">还没有文档</view>
-    <view class="sub-text">上传你的第一份文档，开始建立私人知识库</view>
+    <view class="sub-text">上传一份文档，开始建立你的资料库</view>
   </view>
 
-  <view wx:for="{{docs}}" wx:key="id" class="doc card" data-id="{{item.id}}" bindtap="goDetail">
-    <view class="doc-icon">📄</view>
+  <view wx:for="{{docs}}" wx:key="id" class="doc" data-id="{{item.id}}" bindtap="goDetail">
     <view class="doc-main">
       <view class="doc-name">{{item.name}}</view>
       <view class="sub-text">{{item.type}} · {{item.size_kb}}KB · {{item.created_at}}</view>

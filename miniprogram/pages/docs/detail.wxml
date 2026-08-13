@@ -1,9 +1,9 @@
 <view class="page" wx:if="{{doc}}">
   <view class="card">
-    <view class="doc-title">📄 {{doc.name}}</view>
+    <view class="doc-title">{{doc.name}}</view>
     <view class="sub-text">{{doc.type}} · {{doc.size_kb}}KB · {{doc.created_at}}</view>
     <view class="status-line">
-      <text class="tag {{doc.status === 'ready' ? 'tag-green' : doc.status === 'failed' ? 'tag-red' : 'tag-gray'}}">{{doc.status}}</text>
+      <text class="tag {{doc.status === 'ready' ? 'tag-green' : doc.status === 'failed' ? 'tag-red' : 'tag-gray'}}">{{statusText(doc.status)}}</text>
       <text wx:if="{{doc.chunk_count}}" class="sub-text">{{doc.chunk_count}} 个分块</text>
     </view>
     <view wx:if="{{doc.fail_reason}}" class="fail-reason">原因：{{doc.fail_reason}}</view>

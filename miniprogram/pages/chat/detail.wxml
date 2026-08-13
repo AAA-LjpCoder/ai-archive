@@ -10,18 +10,17 @@
 
   <scroll-view scroll-y class="msg-list" scroll-into-view="{{scrollTo}}" scroll-with-animation>
     <view wx:if="{{messages.length === 0}}" class="welcome">
-      <view class="welcome-icon">🗂️</view>
-      <view>向你的知识库提问</view>
-      <view class="sub-text">回答会标注来源，可点击引用查看原文</view>
+      <view class="welcome-title">向资料库提问</view>
+      <view class="sub-text">回答会标注引用来源，可点开查看原文</view>
     </view>
 
     <view wx:for="{{messages}}" wx:key="id" class="msg {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}"
           id="msg-{{index}}" data-index="{{index}}" bindtap="onAssistantTap">
       <view class="bubble">
         <text wx:if="{{item.content}}" user-select>{{item.content}}</text>
-        <text wx:elif="{{item.streaming}}" class="streaming-dot">● 思考中</text>
+        <text wx:elif="{{item.streaming}}" class="streaming-dot">正在思考…</text>
         <view wx:if="{{item.citations && item.citations.length > 0}}" class="cites">
-          <view class="cite-title">📎 引用来源</view>
+          <view class="cite-title">引用来源</view>
           <view wx:for="{{item.citations}}" wx:for-item="c" wx:for-index="ci" wx:key="chunk_id"
                 class="cite-item" data-index="{{ci}}">
             <text class="cite-idx">[{{ci + 1}}]</text>

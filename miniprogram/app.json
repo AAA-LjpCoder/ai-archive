@@ -10,15 +10,16 @@
     "pages/mine/privacy"
   ],
   "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#1F6FEB",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTitleText": "AI档案室",
-    "navigationBarTextStyle": "white"
+    "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "color": "#8A9099",
-    "selectedColor": "#1F6FEB",
+    "color": "#9B9A97",
+    "selectedColor": "#37352F",
     "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
     "list": [
       { "pagePath": "pages/chat/index", "text": "问答" },
       { "pagePath": "pages/docs/index", "text": "文档库" },

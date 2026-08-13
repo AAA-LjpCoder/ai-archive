@@ -9,7 +9,7 @@
     <view class="section-title" style="margin-top: 32rpx">文档空间</view>
     <view class="sub-text">文档 {{quota.docs}} / {{quota.docs_limit}} 个 · 已用 {{quota.storage_used_mb}}MB / {{quota.storage_limit_mb}}MB</view>
 
-    <view class="btn-primary" bindtap="watchAd">📺 看广告 +10 轮问答</view>
-    <view class="sub-text tips">广告解锁功能将在 M3 阶段接入正式广告组件</view>
+    <view class="btn-primary" bindtap="watchAd">看广告获得 10 轮问答</view>
+    <view class="sub-text tips">激励视频组件将在正式版接入</view>
   </view>
 </view>

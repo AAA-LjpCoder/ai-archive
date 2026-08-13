@@ -1,23 +1,25 @@
-/* app.wxss — 全局样式 */
+/* app.wxss — 全局样式（极简文档风：白底、细分割线、无阴影、小圆角） */
 page {
-  background: #F5F7FA;
+  background: #FFFFFF;
   font-size: 28rpx;
-  color: #1F2329;
+  color: #37352F;
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* 卡片：无阴影，仅细边框，小圆角 */
 .card {
   background: #fff;
-  border-radius: 16rpx;
-  padding: 28rpx;
+  border: 1rpx solid #EBEBE7;
+  border-radius: 8rpx;
+  padding: 32rpx;
   margin: 20rpx 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 }
 
 .btn-primary {
-  background: #1F6FEB;
+  background: #2383E2;
   color: #fff;
-  border-radius: 12rpx;
+  border-radius: 6rpx;
   font-size: 30rpx;
   padding: 20rpx 0;
   text-align: center;
@@ -28,30 +30,30 @@ page {
 
 .btn-plain {
   background: #fff;
-  color: #1F6FEB;
-  border: 2rpx solid #1F6FEB;
-  border-radius: 12rpx;
+  color: #37352F;
+  border: 1rpx solid #D3D1CB;
+  border-radius: 6rpx;
   font-size: 30rpx;
   padding: 18rpx 0;
   text-align: center;
   margin: 16rpx 0;
 }
 
-.btn-disabled { background: #C9CDD4; color: #fff; }
+.btn-disabled { background: #F1F1EF; color: #C7C7C4; }
 
 .section-title {
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
   margin: 8rpx 0 12rpx;
 }
 
-.sub-text { color: #8A9099; font-size: 24rpx; }
+.sub-text { color: #9B9A97; font-size: 24rpx; }
 
 .textarea-box {
   width: 100%;
   min-height: 240rpx;
-  background: #F7F8FA;
-  border-radius: 12rpx;
+  background: #F7F7F5;
+  border-radius: 8rpx;
   padding: 20rpx;
   box-sizing: border-box;
   font-size: 26rpx;
@@ -60,13 +62,13 @@ page {
 
 .tag {
   display: inline-block;
-  padding: 4rpx 16rpx;
-  border-radius: 8rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 4rpx;
   font-size: 22rpx;
   margin-right: 12rpx;
 }
 
-.tag-blue { background: #E8F0FE; color: #1F6FEB; }
-.tag-green { background: #E6F7ED; color: #22A06B; }
-.tag-gray { background: #F0F1F3; color: #6B7280; }
-.tag-red { background: #FDECEC; color: #D92D20; }
+.tag-blue { background: #E7F3F8; color: #2383E2; }
+.tag-green { background: #E3F1E8; color: #448361; }
+.tag-gray { background: #F1F1EF; color: #787774; }
+.tag-red { background: #FBE9E9; color: #D44C47; }
