@@ -5,3 +5,6 @@ data/
 *.env
 .env
 .DS_Store
+
+# 微信开发者工具本地私有配置
+miniprogram/project.private.config.json
