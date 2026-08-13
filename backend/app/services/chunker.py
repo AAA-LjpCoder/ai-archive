@@ -1,93 +1,162 @@
-"""层级分块：按标题切大块 → 按句群切小块（PRD §8.3）"""
+"""结构感知分块：标题层级切分 + 标题上下文前缀 + 代码/表格整体保留（PRD §8.3）"""
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app.config import settings
 
-HEADING_RE = re.compile(r"^(#{1,6}\s+.*|第[一二三四五六七八九十百千\d]+[章节部分].*|[\d]+[.、]\s*\S.*)$")
+SENT_END = re.compile(r"(?<=[。！？；.!?;])")
 
 
 @dataclass
 class ChunkPiece:
     seq: int
     content: str
-    heading: str | None = None
+    heading: str | None = None       # 最近一级标题
+    heading_path: str | None = None  # 完整标题路径（如 "第一章 / 1.1 方法"）
     page_no: int | None = None
+    meta: dict = field(default_factory=dict)
 
 
-def chunk_parsed(pages: list[tuple[int, str]]) -> list[ChunkPiece]:
-    """pages: [(page_no, text)] → 层级分块结果"""
-    # 1) 按页收集，识别标题
-    big_blocks: list[dict] = []  # {heading, text, page}
-    current: dict | None = None
+def chunk_parsed(pages: list[tuple[int, str]], blocks=None) -> list[ChunkPiece]:
+    """结构感知分块。
 
-    for page_no, text in pages:
-        lines = text.split("\n")
-        for line in lines:
-            stripped = line.strip()
-            if not stripped:
-                continue
-            if HEADING_RE.match(stripped) and len(stripped) <= 60:
-                if current:
-                    big_blocks.append(current)
-                current = {"heading": stripped, "text": "", "page": page_no}
-            else:
-                if current is None:
-                    current = {"heading": None, "text": "", "page": page_no}
-                current["text"] += stripped + "\n"
+    pages: [(page_no, text)] —— 兼容旧调用（无 blocks 时退回纯文本启发式）
+    blocks: 可选结构化块（parser.ParsedDoc.blocks），优先使用
+    """
+    from app.services.parser import _plain_to_blocks
 
-    if current:
-        big_blocks.append(current)
+    if blocks is None:
+        blocks = []
+        for page_no, text in pages:
+            for b in _plain_to_blocks(text):
+                b.page_no = page_no
+                blocks.append(b)
+    return _chunk_blocks(blocks)
 
-    # 2) 大块内按句群切小块
+
+def _chunk_blocks(blocks) -> list[ChunkPiece]:
+    size = settings.chunk_size
     pieces: list[ChunkPiece] = []
+    path: list[str] = []
     seq = 0
-    for block in big_blocks:
-        text = block["text"].strip()
-        if not text:
-            continue
-        for small in _split_small(text, settings.chunk_size, settings.chunk_overlap):
+    buf: list[str] = []
+    buf_page: int | None = None
+
+    def flush() -> None:
+        nonlocal seq
+        if not buf:
+            return
+        text = "\n".join(buf)
+        prefix = " / ".join(path)
+        for seg in _split_to_size(text, size):
+            content = f"{prefix}\n{seg}".strip() if prefix else seg
             pieces.append(
-                ChunkPiece(seq=seq, content=small, heading=block["heading"], page_no=block["page"])
+                ChunkPiece(
+                    seq=seq,
+                    content=content,
+                    heading=path[-1] if path else None,
+                    heading_path=prefix or None,
+                    page_no=buf_page,
+                    meta={"type": "text"},
+                )
             )
             seq += 1
+        buf.clear()
+
+    for block in blocks:
+        if block.type == "heading":
+            flush()
+            _update_path(path, block.level, block.text)
+        elif block.type in ("code", "table"):
+            # 代码块 / 表格整体保留，不切碎
+            flush()
+            prefix = " / ".join(path)
+            content = f"{prefix}\n{block.text}".strip() if prefix else block.text
+            # 超长代码块按行切
+            for seg in _split_code(block.text, size):
+                c = f"{prefix}\n{seg}".strip() if prefix else seg
+                pieces.append(
+                    ChunkPiece(
+                        seq=seq, content=c,
+                        heading=path[-1] if path else None,
+                        heading_path=prefix or None,
+                        page_no=block.page_no,
+                        meta={"type": block.type},
+                    )
+                )
+                seq += 1
+        else:
+            if buf_page is None:
+                buf_page = block.page_no
+            buf.append(block.text)
+
+    flush()
     return pieces
 
 
-def _split_small(text: str, size: int, overlap: int) -> list[str]:
-    """按段落/句群切分，目标 size 字，重叠 overlap 字"""
-    # 先按空行分段
+def _update_path(path: list[str], level: int, title: str) -> None:
+    """按标题层级维护路径栈：level 变化时弹出更深层级"""
+    while len(path) >= level:
+        path.pop()
+    path.append(title)
+
+
+def _split_to_size(text: str, size: int) -> list[str]:
+    """按段落聚合 + 超长段落按句子切，目标 ≤ size 字"""
     paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    if not paragraphs:
+        return []
     chunks: list[str] = []
     current = ""
     for para in paragraphs:
-        # 超长段落内部再切
-        while len(para) > size:
-            cut = para[:size]
-            # 尽量在句号处断
-            m = max(cut.rfind("。"), cut.rfind("！"), cut.rfind("？"), cut.rfind("；"))
-            if m > size * 0.5:
-                cut, para = cut[: m + 1], para[m + 1 :]
-            else:
-                para = para[size:]
-            chunks.append(cut.strip())
-        if len(current) + len(para) <= size:
-            current = (current + "\n" + para).strip() if current else para
-        else:
-            if current:
+        # 超长段落内部按句子切
+        for sent in _split_sentences(para, size):
+            if len(sent) > size:
+                # 句子仍超长：硬切
+                chunks.append(sent[:size])
+                chunks.append(sent[size:])
+                current = ""
+                continue
+            if current and len(current) + len(sent) + 1 > size:
                 chunks.append(current)
-            current = para
+                current = sent
+            else:
+                current = f"{current}\n{sent}".strip() if current else sent
     if current:
         chunks.append(current)
+    return chunks
 
-    # 重叠处理：对相邻块做尾部拼接（保持上下文连续）
-    merged: list[str] = []
-    for c in chunks:
-        if not merged:
-            merged.append(c)
-            continue
-        if overlap > 0 and len(merged[-1]) > overlap:
-            merged.append(merged[-1][-overlap:] + c)
+
+def _split_sentences(para: str, size: int) -> list[str]:
+    """按句末标点切分，再聚合成 ≤ size 的段"""
+    sents = [s.strip() for s in SENT_END.split(para) if s.strip()]
+    if not sents:
+        return [para]
+    out: list[str] = []
+    cur = ""
+    for s in sents:
+        if cur and len(cur) + len(s) > size:
+            out.append(cur)
+            cur = s
         else:
-            merged.append(c)
-    return merged
+            cur = f"{cur}{s}" if cur else s
+    if cur:
+        out.append(cur)
+    return out
+
+
+def _split_code(text: str, size: int) -> list[str]:
+    """代码块：尽量保持行完整地切分"""
+    lines = text.split("\n")
+    chunks: list[str] = []
+    cur: list[str] = []
+    cur_len = 0
+    for line in lines:
+        if cur and cur_len + len(line) + 1 > size:
+            chunks.append("\n".join(cur))
+            cur, cur_len = [], 0
+        cur.append(line)
+        cur_len += len(line) + 1
+    if cur:
+        chunks.append("\n".join(cur))
+    return chunks

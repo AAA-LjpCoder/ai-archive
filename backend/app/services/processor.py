@@ -33,7 +33,7 @@ def _process(db: Session, doc_id: int) -> None:
 
         file_path = Path(doc.file_url)
         parsed = parse_file(file_path, doc.type)
-        pieces = chunk_parsed(parsed.pages)
+        pieces = chunk_parsed(parsed.pages, parsed.blocks)
         if not pieces:
             raise ValueError("文档解析后没有可用的文本内容")
 
@@ -41,6 +41,12 @@ def _process(db: Session, doc_id: int) -> None:
         embeddings = embedding_client.embed_texts(texts)
 
         for piece, emb in zip(pieces, embeddings):
+            meta: dict = {}
+            if piece.heading_path:
+                meta["heading"] = piece.heading_path
+            elif piece.heading:
+                meta["heading"] = piece.heading
+            meta["type"] = piece.meta.get("type", "text")
             db.add(
                 Chunk(
                     doc_id=doc.id,
@@ -49,7 +55,7 @@ def _process(db: Session, doc_id: int) -> None:
                     content=piece.content,
                     embedding=emb,
                     page_no=piece.page_no,
-                    meta={"heading": piece.heading} if piece.heading else None,
+                    meta=meta if meta else None,
                 )
             )
         doc.chunk_count = len(pieces)
