@@ -130,7 +130,7 @@ function htmlToNodes(html) {
         for (const t of tokens) {
           children.push(t.cls === 'pl'
             ? makeText(t.text)
-            : { name: 'text', attrs: { style: `color:${CODE_COLOR[t.cls]};` }, children: [makeText(t.text)] });
+            : { name: 'span', attrs: { style: `color:${CODE_COLOR[t.cls]};` }, children: [makeText(t.text)] });
         }
         const preNode = {
           name: 'div',

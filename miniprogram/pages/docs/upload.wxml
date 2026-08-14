@@ -25,7 +25,7 @@
   <view class="card">
     <view class="section-title">支持的格式</view>
     <view class="fmt-grid">
-      <view class="fmt-item" wx:for="{{formats}}" wx:key="*this">
+      <view class="fmt-item" wx:for="{{formats}}" wx:key="name">
         <text class="fmt-dot {{item.cls}}"></text>
         <text class="fmt-name">{{item.name}}</text>
       </view>
