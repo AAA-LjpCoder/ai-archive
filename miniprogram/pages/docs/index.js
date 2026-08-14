@@ -1,27 +1,49 @@
 // pages/docs/index.js — 文档库
 const api = require('../../utils/api');
 
-const TYPE_CLASS = { md: 'tag-type-md', markdown: 'tag-type-md', pdf: 'tag-type-pdf', docx: 'tag-type-docx', txt: 'tag-type-txt' };
+const TYPE_CLASS = {
+  md: 'tag-type-md', markdown: 'tag-type-md', pdf: 'tag-type-pdf',
+  docx: 'tag-type-docx', doc: 'tag-type-docx', txt: 'tag-type-txt',
+  pptx: 'tag-type-pptx', xlsx: 'tag-type-xlsx', xls: 'tag-type-xlsx',
+  epub: 'tag-type-epub', html: 'tag-type-html', htm: 'tag-type-html',
+  csv: 'tag-type-csv',
+};
 const TYPE_ICON = {
-  md: { cls: 'icon-md', label: 'MD' },
-  markdown: { cls: 'icon-md', label: 'MD' },
+  md: { cls: 'icon-md', label: 'MD' }, markdown: { cls: 'icon-md', label: 'MD' },
   pdf: { cls: 'icon-pdf', label: 'PDF' },
-  docx: { cls: 'icon-docx', label: 'DOC' },
+  docx: { cls: 'icon-docx', label: 'DOC' }, doc: { cls: 'icon-docx', label: 'DOC' },
   txt: { cls: 'icon-txt', label: 'TXT' },
+  pptx: { cls: 'icon-pptx', label: 'PPT' },
+  xlsx: { cls: 'icon-xlsx', label: 'XLS' }, xls: { cls: 'icon-xlsx', label: 'XLS' },
+  epub: { cls: 'icon-epub', label: 'EPUB' },
+  html: { cls: 'icon-html', label: 'HTML' }, htm: { cls: 'icon-html', label: 'HTML' },
+  csv: { cls: 'icon-csv', label: 'CSV' },
 };
 
 Page({
-  data: { docs: [], loading: true },
+  data: { docs: [], loading: true, totalChunks: 0 },
 
   onShow() { this.load(); },
 
   async load() {
     try {
       const docs = await api.request('/api/docs');
-      this.setData({ docs: docs.map((d) => {
+      const mapped = docs.map((d) => {
         const icon = TYPE_ICON[d.type] || { cls: 'icon-txt', label: d.type.toUpperCase().slice(0, 3) };
-        return { ...d, size_kb: (d.size / 1024).toFixed(0), type_class: TYPE_CLASS[d.type] || 'tag-type-txt', type_icon_cls: icon.cls, type_icon_label: icon.label };
-      }), loading: false });
+        return {
+          ...d,
+          size_kb: (d.size / 1024).toFixed(0),
+          type_class: TYPE_CLASS[d.type] || 'tag-type-txt',
+          type_icon_cls: icon.cls,
+          type_icon_label: icon.label,
+          anim_delay: (docs.indexOf(d) * 60) + 'ms',
+        };
+      });
+      this.setData({
+        docs: mapped,
+        totalChunks: mapped.reduce((s, d) => s + (d.chunk_count || 0), 0),
+        loading: false,
+      });
     } catch (e) {
       this.setData({ loading: false });
       wx.showToast({ title: e.message, icon: 'none' });
@@ -46,6 +68,6 @@ Page({
   },
 
   statusText(status) {
-    return { pending: '排队中', processing: '处理中', ready: '就绪', failed: '失败' }[status] || status;
+    return { pending: '排队中', processing: '解析中', ready: '就绪', failed: '失败' }[status] || status;
   },
 });

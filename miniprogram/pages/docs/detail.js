@@ -1,7 +1,24 @@
 // pages/docs/detail.js — 文档详情
 const api = require('../../utils/api');
 
-const TYPE_CLASS = { md: 'tag-type-md', markdown: 'tag-type-md', pdf: 'tag-type-pdf', docx: 'tag-type-docx', txt: 'tag-type-txt' };
+const TYPE_CLASS = {
+  md: 'tag-type-md', markdown: 'tag-type-md', pdf: 'tag-type-pdf',
+  docx: 'tag-type-docx', doc: 'tag-type-docx', txt: 'tag-type-txt',
+  pptx: 'tag-type-pptx', xlsx: 'tag-type-xlsx', xls: 'tag-type-xlsx',
+  epub: 'tag-type-epub', html: 'tag-type-html', htm: 'tag-type-html',
+  csv: 'tag-type-csv',
+};
+const TYPE_ICON = {
+  md: { cls: 'icon-md', label: 'MD' }, markdown: { cls: 'icon-md', label: 'MD' },
+  pdf: { cls: 'icon-pdf', label: 'PDF' },
+  docx: { cls: 'icon-docx', label: 'DOC' }, doc: { cls: 'icon-docx', label: 'DOC' },
+  txt: { cls: 'icon-txt', label: 'TXT' },
+  pptx: { cls: 'icon-pptx', label: 'PPT' },
+  xlsx: { cls: 'icon-xlsx', label: 'XLS' }, xls: { cls: 'icon-xlsx', label: 'XLS' },
+  epub: { cls: 'icon-epub', label: 'EPUB' },
+  html: { cls: 'icon-html', label: 'HTML' }, htm: { cls: 'icon-html', label: 'HTML' },
+  csv: { cls: 'icon-csv', label: 'CSV' },
+};
 
 Page({
   data: { doc: null, chunks: [] },
@@ -17,7 +34,17 @@ Page({
         api.request(`/api/docs/${this.docId}`),
         api.request(`/api/docs/${this.docId}/chunks?limit=30`),
       ]);
-      this.setData({ doc: { ...doc, size_kb: (doc.size / 1024).toFixed(0), type_class: TYPE_CLASS[doc.type] || 'tag-type-txt' }, chunks });
+      const icon = TYPE_ICON[doc.type] || { cls: 'icon-txt', label: doc.type.toUpperCase().slice(0, 3) };
+      this.setData({
+        doc: {
+          ...doc,
+          size_kb: (doc.size / 1024).toFixed(0),
+          type_class: TYPE_CLASS[doc.type] || 'tag-type-txt',
+          type_icon_cls: icon.cls,
+          type_icon_label: icon.label,
+        },
+        chunks,
+      });
     } catch (e) {
       wx.showToast({ title: e.message, icon: 'none' });
     }
@@ -57,6 +84,6 @@ Page({
   },
 
   statusText(status) {
-    return { pending: '排队中', processing: '处理中', ready: '就绪', failed: '失败' }[status] || status;
+    return { pending: '排队中', processing: '解析中', ready: '就绪', failed: '失败' }[status] || status;
   },
 });

@@ -1,14 +1,22 @@
 // pages/docs/upload.js — 上传
 const api = require('../../utils/api');
 
+const FORMATS = [
+  { name: 'MD', cls: 'fd-md' }, { name: 'PDF', cls: 'fd-pdf' },
+  { name: 'DOCX', cls: 'fd-docx' }, { name: 'PPTX', cls: 'fd-pptx' },
+  { name: 'XLSX', cls: 'fd-xlsx' }, { name: 'EPUB', cls: 'fd-epub' },
+  { name: 'HTML', cls: 'fd-html' }, { name: 'CSV', cls: 'fd-csv' },
+  { name: 'TXT', cls: 'fd-txt' },
+];
+
 Page({
-  data: { filePath: '', fileName: '', uploading: false },
+  data: { filePath: '', fileName: '', uploading: false, formats: FORMATS },
 
   chooseFile() {
     wx.chooseMessageFile({
       count: 1,
       type: 'file',
-      extension: ['txt', 'md', 'pdf', 'docx'],
+      extension: ['txt', 'md', 'pdf', 'docx', 'doc', 'pptx', 'xlsx', 'xls', 'epub', 'html', 'htm', 'csv'],
       success: (res) => {
         const f = res.tempFiles[0];
         if (f.size > 20 * 1024 * 1024) {

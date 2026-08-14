@@ -15,7 +15,7 @@ from app.models import Conversation, Document, Message, User
 from app.schemas import AskRequest, ConversationCreate, ConversationOut, MessageOut
 from app.services.embedding import embedding_client
 from app.services.llm import build_messages, stream_chat
-from app.services.retrieval import hybrid_search
+from app.services.retrieval_v2 import hybrid_search  # V2 管线：全库BM25 + reranker 精排
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
@@ -130,6 +130,7 @@ async def ask(
                     "content": c.content,  # 完整内容（LLM prompt 用）
                     "snippet": c.content[:200],  # 截断片段（前端展示用）
                     "page_no": c.page_no,
+                    "heading": (c.meta or {}).get("heading"),  # 标题路径（溯源展示）
                     "chunk_id": c.id,
                 }
                 for c in chunks

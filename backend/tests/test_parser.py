@@ -53,3 +53,70 @@ def test_parse_unsupported(tmp_path: Path):
     p.write_text("x")
     with pytest.raises(ValueError, match="不支持"):
         parse_file(p, "xyz")
+
+
+# ---------- V2.0 新增格式 ----------
+
+
+def test_parse_html_structure(tmp_path: Path):
+    p = tmp_path / "f.html"
+    p.write_text(
+        "<html><body><h1>产品手册</h1><h2>第一章</h2>"
+        "<p>安装说明。</p><table><tr><th>步骤</th><th>说明</th></tr>"
+        "<tr><td>1</td><td>双击</td></tr></table>"
+        "<pre><code>print(1)</code></pre></body></html>",
+        encoding="utf-8",
+    )
+    doc = parse_file(p, "html")
+    types = [b.type for b in doc.blocks]
+    assert "heading" in types and "table" in types and "code" in types
+    assert any(b.text == "产品手册" for b in doc.blocks if b.type == "heading")
+
+
+def test_parse_csv(tmp_path: Path):
+    p = tmp_path / "g.csv"
+    p.write_text("姓名,部门\n张三,研发", encoding="utf-8")
+    doc = parse_file(p, "csv")
+    assert doc.blocks[0].type == "table"
+    assert "张三" in doc.full_text
+
+
+def test_parse_xlsx(tmp_path: Path):
+    from openpyxl import Workbook
+
+    p = tmp_path / "h.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "数据"
+    ws.append(["月份", "营收"])
+    ws.append(["1月", 100])
+    wb.save(p)
+    doc = parse_file(p, "xlsx")
+    assert any("工作表" in b.text for b in doc.blocks)
+    assert "1月" in doc.full_text
+
+
+def test_parse_pptx(tmp_path: Path):
+    from pptx import Presentation
+    from pptx.util import Inches
+
+    p = tmp_path / "i.pptx"
+    prs = Presentation()
+    slide = prs.slides.add_slide(prs.slide_layouts[1])
+    slide.shapes.title.text = "季度汇报"
+    slide.placeholders[1].text = "营收 500 万"
+    prs.save(p)
+    doc = parse_file(p, "pptx")
+    assert "季度汇报" in doc.full_text
+    assert "营收" in doc.full_text
+
+
+def test_parse_epub(tmp_path: Path):
+    import zipfile
+
+    p = tmp_path / "j.epub"
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr("OEBPS/ch1.xhtml", "<html><body><h1>第一章</h1><p>电子书内容。</p></body></html>")
+    doc = parse_file(p, "epub")
+    assert any(b.type == "heading" and b.text == "第一章" for b in doc.blocks)
+    assert "电子书内容" in doc.full_text

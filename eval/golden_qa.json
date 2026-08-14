@@ -1,0 +1,206 @@
+[
+  {
+    "id": "rag_01",
+    "question": "RAG的核心流程包括哪几步？",
+    "keywords": ["解析与分块", "向量化", "向量库存储"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_02",
+    "question": "如何提升RAG系统的检索准确率？",
+    "keywords": ["分块策略", "混合检索", "rerank"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_03",
+    "question": "PDF中的表格和图片内容如何处理？",
+    "keywords": ["pdfplumber", "camelot", "CLIP"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_04",
+    "question": "如何评估RAG系统的效果？",
+    "keywords": ["召回率", "Top-K命中率", "BLEU"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_05",
+    "question": "怎么防止RAG系统生成幻觉答案？",
+    "keywords": ["只基于检索内容作答", "降低temperature", "未找到相关内容"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_06",
+    "question": "多轮对话的RAG系统怎么实现？",
+    "keywords": ["对话历史", "联合向量", "窗口机制"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_07",
+    "question": "RAG带来的好处和坏处分别是什么？",
+    "keywords": ["修正明显知识错误", "幻觉"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_08",
+    "question": "RAG检索优化有哪些手段？",
+    "keywords": ["query分类", "HyDE", "MonoT5"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_09",
+    "question": "RAG中Embedding是什么？",
+    "keywords": ["高维向量", "语义桥梁", "语义相似"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_10",
+    "question": "RAG的召回率和准确率怎么计算？",
+    "keywords": ["召回率=检索到的相关文档数", "精确率"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_11",
+    "question": "RAGAS评估的两个核心指标是什么？",
+    "keywords": ["上下文相关性", "忠实度"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_12",
+    "question": "什么是MCP协议？",
+    "keywords": ["模型上下文协议", "统一标准化接口", "USB接口"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_13",
+    "question": "什么是Agent？",
+    "keywords": ["感知", "规划", "行动"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_14",
+    "question": "DeepSeek和Qwen的架构有什么区别？",
+    "keywords": ["MoE", "稠密模型"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_15",
+    "question": "LoRA微调和全参数微调的性能差距有多大？",
+    "keywords": ["92%-97%", "70%-85%"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_16",
+    "question": "Deepspeed ZeRO三个模式的区别？",
+    "keywords": ["ZeRO-1", "ZeRO-2", "ZeRO-3", "优化器"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_17",
+    "question": "大模型训练的显存开销是怎么构成的？",
+    "keywords": ["16x 模型参数量", "优化器状态", "fp32"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_18",
+    "question": "什么是向量数据库？",
+    "keywords": ["向量", "相似度"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "rag_19",
+    "question": "Milvus和ES在混合检索上有什么区别？",
+    "keywords": ["Milvus", "ES", "hnsw"],
+    "doc_hint": "RAG文档"
+  },
+  {
+    "id": "work_01",
+    "question": "S25042909这个项目最终有多少张图片？",
+    "keywords": ["411"],
+    "doc_hint": "工作日志"
+  },
+  {
+    "id": "work_02",
+    "question": "3月6号发生了什么？",
+    "keywords": ["S25042909", "411张图片"],
+    "doc_hint": "工作日志"
+  },
+  {
+    "id": "work_03",
+    "question": "如果不对user_id去重会发生什么问题？",
+    "keywords": ["字典映射被覆盖", "中间文件被相互覆盖", "聚合逻辑失效"],
+    "doc_hint": "工作日志"
+  },
+  {
+    "id": "work_04",
+    "question": "图片质检的必检项有哪些？",
+    "keywords": ["SIM", "STOCK", "WATERMARK", "CROPPED", "RESHOOT"],
+    "doc_hint": "工作日志"
+  },
+  {
+    "id": "work_05",
+    "question": "5月26日要添加的新功能是什么？",
+    "keywords": ["user_id", "去重", "img_run_log", "Y"],
+    "doc_hint": "工作日志"
+  },
+  {
+    "id": "work_06",
+    "question": "为什么只处理jpg图片？",
+    "keywords": ["硬编码", "Step 2"],
+    "doc_hint": "工作日志"
+  },
+  {
+    "id": "work_07",
+    "question": "预处理会去除哪些图片？",
+    "keywords": ["翻拍", "水印", "过度裁剪"],
+    "doc_hint": "工作日志"
+  },
+  {
+    "id": "work_08",
+    "question": "3月27日构建离线安装包时报了什么错？",
+    "keywords": ["scipy", "Download failed", "incomplete-download"],
+    "doc_hint": "工作日志"
+  },
+  {
+    "id": "prod_01",
+    "question": "AI档案室是谁开发的？",
+    "keywords": ["Tom", "2026"],
+    "doc_hint": "产品介绍"
+  },
+  {
+    "id": "prod_02",
+    "question": "AI档案室单个文件最大多少MB？",
+    "keywords": ["20MB"],
+    "doc_hint": "产品介绍"
+  },
+  {
+    "id": "prod_03",
+    "question": "免费用户每天可以问答多少轮？",
+    "keywords": ["20 轮"],
+    "doc_hint": "产品介绍"
+  },
+  {
+    "id": "prod_04",
+    "question": "AI档案室用了什么嵌入模型？",
+    "keywords": ["BGE-M3", "1024"],
+    "doc_hint": "产品介绍"
+  },
+  {
+    "id": "prod_05",
+    "question": "AI档案室M2阶段规划做什么？",
+    "keywords": ["多租户用户系统"],
+    "doc_hint": "产品介绍"
+  },
+  {
+    "id": "hosp_01",
+    "question": "馆陶县人民医院的文档是关于什么的？",
+    "keywords": ["医共体", "质检整改", "护理质量"],
+    "doc_hint": "医院文档"
+  },
+  {
+    "id": "hosp_02",
+    "question": "护理质量督导反馈了哪些问题？",
+    "keywords": ["治疗室物品清扫不及时", "分级护理内容掌握不全"],
+    "doc_hint": "医院文档"
+  }
+]

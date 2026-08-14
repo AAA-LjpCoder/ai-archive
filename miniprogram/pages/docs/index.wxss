@@ -1,44 +1,88 @@
-/* pages/docs/index.wxss */
-.page { padding-bottom: 160rpx; }
+/* pages/docs/index.wxss — 文档库（档案袋卡片 V2） */
+.page { padding-bottom: 200rpx; }
 
 .empty { text-align: center; padding: 100rpx 28rpx 60rpx; }
-.empty-text { font-size: 32rpx; font-weight: 600; margin: 0 0 8rpx; }
+.empty-btn { width: 380rpx; display: inline-block; }
 
-/* 文档卡片：白底 + 大圆角 + 轻阴影，独立档案袋感 */
+/* ---------- 骨架屏 ---------- */
+.skeleton-card { display: flex; align-items: center; padding: 28rpx; }
+.sk-icon { width: 76rpx; height: 88rpx; border-radius: 14rpx; flex-shrink: 0; margin-right: 24rpx; }
+.sk-main { flex: 1; }
+.sk-line { height: 28rpx; margin-bottom: 16rpx; }
+.sk-line.w70 { width: 70%; }
+.sk-line.w40 { width: 40%; }
+.sk-line.w55 { width: 55%; margin-bottom: 0; }
+
+/* ---------- 列表入场 ---------- */
+.anim-up { animation: fadeUp 0.45s ease both; }
+
+/* ---------- 文档卡片：档案袋 ---------- */
 .doc {
   display: flex;
   align-items: center;
-  padding: 28rpx;
-  border-radius: 20rpx;
-  box-shadow: 0 6rpx 20rpx rgba(45, 42, 38, 0.06);
+  padding: 30rpx 28rpx;
+  border-radius: 26rpx;
+  margin: 18rpx 24rpx;
+  box-shadow: 0 6rpx 22rpx rgba(45, 42, 38, 0.06), 0 1rpx 3rpx rgba(45, 42, 38, 0.04);
 }
-.doc:active { background: #F7F5F0; }
+.doc:active { background: #FAF7F1; }
 
-/* 文件类型图标：彩色方块 + 类型缩写 */
+/* 文件页图标：白纸 + 右下折角 + 类型色条 */
 .doc-icon {
-  width: 76rpx; height: 88rpx;
-  border-radius: 14rpx;
+  position: relative;
+  width: 72rpx; height: 88rpx;
+  border-radius: 12rpx 12rpx 12rpx 4rpx;
   display: flex; align-items: center; justify-content: center;
-  font-size: 24rpx; font-weight: 700; color: #fff;
-  flex-shrink: 0; margin-right: 24rpx;
-  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.15);
+  flex-shrink: 0; margin-right: 26rpx;
+  box-shadow: 0 6rpx 14rpx rgba(0, 0, 0, 0.14);
+  overflow: hidden;
 }
-.icon-md { background: linear-gradient(135deg, #3B82F6, #2563EB); }
-.icon-pdf { background: linear-gradient(135deg, #EF4444, #DC2626); }
-.icon-docx { background: linear-gradient(135deg, #3B6FE0, #1D4ED8); }
-.icon-txt { background: linear-gradient(135deg, #8A8075, #6B7280); }
+.doc-icon::before {
+  /* 顶部类型色条 */
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 10rpx;
+  background: rgba(255, 255, 255, 0.92);
+}
+.doc-fold {
+  position: absolute; right: 0; bottom: 0;
+  width: 0; height: 0;
+  border-left: 22rpx solid transparent;
+  border-bottom: 22rpx solid rgba(0, 0, 0, 0.14);
+  border-radius: 0 0 4rpx 0;
+}
+.doc-label { font-size: 20rpx; font-weight: 800; color: #fff; letter-spacing: 1rpx; }
+
+.icon-md { background: linear-gradient(160deg, #4E8CFF, #2563EB); }
+.icon-pdf { background: linear-gradient(160deg, #F87171, #DC2626); }
+.icon-docx { background: linear-gradient(160deg, #5B8DEF, #1D4ED8); }
+.icon-txt { background: linear-gradient(160deg, #A39A8C, #6B7280); }
+.icon-pptx { background: linear-gradient(160deg, #FB923C, #EA580C); }
+.icon-xlsx { background: linear-gradient(160deg, #4ADE80, #16A34A); }
+.icon-epub { background: linear-gradient(160deg, #C084FC, #7C3AED); }
+.icon-html { background: linear-gradient(160deg, #22D3EE, #0891B2); }
+.icon-csv { background: linear-gradient(160deg, #94A3B8, #64748B); }
 
 .doc-main { flex: 1; min-width: 0; }
-.doc-name { font-size: 30rpx; margin-bottom: 6rpx; word-break: break-all; }
-.doc-status { margin-top: 10rpx; display: flex; align-items: center; gap: 12rpx; }
+.doc-name { font-size: 30rpx; font-weight: 500; margin-bottom: 6rpx; word-break: break-all; }
+.doc-meta { color: #9B9488; font-size: 22rpx; margin-bottom: 10rpx; }
+.doc-status { display: flex; align-items: center; gap: 12rpx; }
 .fail-reason { color: #B4492E; font-size: 22rpx; margin-top: 8rpx; word-break: break-all; }
-.del-btn { color: #B4492E; font-size: 24rpx; padding: 8rpx; flex-shrink: 0; }
+.del-btn { color: #C9C2B4; font-size: 24rpx; padding: 10rpx 6rpx 10rpx 16rpx; flex-shrink: 0; transition: color 0.15s ease; }
+.del-btn:active { color: #B4492E; }
 
-.fab {
-  position: fixed; bottom: 60rpx; left: 50%; transform: translateX(-50%);
-  background: linear-gradient(135deg, #146B5A, #1E8873);
-  color: #fff; font-size: 30rpx;
-  padding: 22rpx 56rpx; border-radius: 999rpx;
-  box-shadow: 0 10rpx 24rpx rgba(20, 107, 90, 0.3);
+/* 解析中扫描动画 */
+.scan-wrap {
+  position: relative; display: inline-block;
+  width: 64rpx; height: 16rpx;
+  border-radius: 8rpx;
+  background: rgba(183, 121, 31, 0.15);
+  overflow: hidden;
 }
-.fab:active { opacity: 0.9; }
+.scan-bar {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 40%;
+  border-radius: 8rpx;
+  background: linear-gradient(90deg, transparent, #D99A3D, transparent);
+  animation: scanline 1.1s infinite ease-in-out;
+}

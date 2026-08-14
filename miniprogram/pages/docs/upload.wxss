@@ -1,8 +1,53 @@
-/* pages/docs/upload.wxss */
+/* pages/docs/upload.wxss — 上传页 V2 */
+.upload-card { padding: 36rpx 32rpx; }
+
 .file-box {
-  background: #F7F3EC; border: 2rpx dashed #C9BCA4;
-  border-radius: 16rpx; padding: 60rpx 24rpx;
-  text-align: center; margin: 16rpx 0;
+  border: 3rpx dashed #D9D2C5;
+  border-radius: 22rpx;
+  padding: 48rpx 28rpx;
+  text-align: center;
+  margin: 16rpx 0 8rpx;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  background: #FBF9F5;
 }
-.file-name { font-size: 28rpx; color: #146B5A; font-weight: 500; word-break: break-all; }
-.tips { margin-top: 16rpx; line-height: 1.6; }
+.file-box:active { border-color: #146B5A; background: #F2F7F5; }
+
+.file-empty-icon { position: relative; width: 84rpx; height: 92rpx; margin: 0 auto 18rpx; }
+.fe-box {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 64rpx; height: 76rpx;
+  border: 4rpx solid #C9C2B4;
+  border-radius: 10rpx;
+  background: #fff;
+}
+.fe-tag {
+  position: absolute; right: 8rpx; top: 2rpx;
+  width: 26rpx; height: 18rpx;
+  background: #D99A3D;
+  border-radius: 4rpx 4rpx 0 0;
+}
+.file-empty-text { font-size: 30rpx; font-weight: 600; color: #2D2A26; margin-bottom: 8rpx; }
+
+.file-name { font-size: 30rpx; font-weight: 500; word-break: break-all; color: #146B5A; }
+.tips { margin-top: 14rpx; line-height: 1.6; }
+
+/* 支持格式 */
+.fmt-grid { display: flex; flex-wrap: wrap; gap: 18rpx; }
+.fmt-item {
+  display: flex; align-items: center; gap: 10rpx;
+  background: #F7F5F0;
+  border-radius: 12rpx;
+  padding: 12rpx 20rpx;
+}
+.fmt-dot { width: 16rpx; height: 16rpx; border-radius: 50%; }
+.fd-md { background: #2563EB; }
+.fd-pdf { background: #DC2626; }
+.fd-docx { background: #1D4ED8; }
+.fd-pptx { background: #EA580C; }
+.fd-xlsx { background: #16A34A; }
+.fd-epub { background: #7C3AED; }
+.fd-html { background: #0891B2; }
+.fd-csv { background: #64748B; }
+.fd-txt { background: #8A8075; }
+.fmt-name { font-size: 24rpx; color: #57534A; }

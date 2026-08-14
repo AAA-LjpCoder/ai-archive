@@ -7,10 +7,23 @@
     <view class="hero-art">
       <view class="art-box"></view>
       <view class="art-tag"></view>
+      <view class="art-line l1"></view>
+      <view class="art-line l2"></view>
     </view>
   </view>
 
-  <view wx:if="{{convs.length === 0 && !loading}}" class="empty">
+  <!-- 骨架屏 -->
+  <view wx:if="{{loading}}">
+    <view class="card skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+      <view class="skeleton sk-icon"></view>
+      <view class="sk-main">
+        <view class="skeleton sk-line w70"></view>
+        <view class="skeleton sk-line w40"></view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{convs.length === 0}}" class="empty">
     <view class="empty-art">
       <view class="ea-box"></view>
       <view class="ea-line l1"></view>
@@ -22,7 +35,8 @@
     <view class="sub-text">点右下角按钮开始提问</view>
   </view>
 
-  <view wx:for="{{convs}}" wx:key="id" class="card conv" data-id="{{item.id}}" data-mode="{{item.mode}}" bindtap="openConversation">
+  <view wx:for="{{convs}}" wx:key="id" class="card conv anim-up" style="animation-delay: {{index * 50}}ms"
+        data-id="{{item.id}}" data-mode="{{item.mode}}" bindtap="openConversation">
     <view class="conv-icon">
       <view class="ci-line"></view>
       <view class="ci-line ci-line-short"></view>

@@ -15,7 +15,10 @@ from app.services.processor import process_document
 
 router = APIRouter(prefix="/api/docs", tags=["docs"])
 
-ALLOWED_TYPES = {"txt", "md", "markdown", "pdf", "docx"}
+ALLOWED_TYPES = {
+    "txt", "md", "markdown", "pdf", "docx", "doc",
+    "pptx", "xlsx", "xls", "epub", "html", "htm", "csv",
+}
 
 
 @router.post("/upload", response_model=DocumentOut)
@@ -29,7 +32,7 @@ async def upload_doc(
     raw_name = (filename or file.filename or "").strip()
     ftype = raw_name.rsplit(".", 1)[-1].lower() if "." in raw_name else ""
     if ftype not in ALLOWED_TYPES:
-        raise HTTPException(400, f"不支持的文件格式: {ftype}（支持 txt/md/pdf/docx）")
+        raise HTTPException(400, f"不支持的文件格式: {ftype}（支持 txt/md/pdf/docx/pptx/xlsx/epub/html/csv）")
 
     # 数量与容量校验
     n_docs = db.scalar(

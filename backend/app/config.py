@@ -50,6 +50,8 @@ class Settings(BaseSettings):
     big_block_size: int = 2000 # 大块上限字数
     retrieval_top_k: int = 20  # 向量/BM25 各自取前 K
     rerank_top_n: int = 6      # MMR 重排后保留 N 个片段
+    retrieval_candidate_pool: int = 60  # v2：向量/BM25 候选池（召回）
+    rerank_input_n: int = 30            # v2：送精排的候选数
     max_answer_chars: int = 800
 
     @property

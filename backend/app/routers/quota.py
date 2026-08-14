@@ -27,9 +27,15 @@ def get_quota(db: Session = Depends(get_db), user_id: str = Depends(get_current_
     storage = db.scalar(
         select(func.coalesce(func.sum(Document.size), 0)).where(Document.user_id == user_id)
     ) or 0
+    chunks = db.scalar(
+        select(func.count())
+        .select_from(__import__("app.models", fromlist=["Chunk"]).Chunk)
+        .where(__import__("app.models", fromlist=["Chunk"]).Chunk.user_id == user_id)
+    ) or 0
     return QuotaOut(
         date=today, used=used, limit=settings.daily_quota_asks,
         docs=n_docs, docs_limit=settings.max_docs_per_user,
+        chunks=chunks,
         storage_bytes=storage, storage_limit=settings.max_storage_mb * 1024 * 1024,
     )
 

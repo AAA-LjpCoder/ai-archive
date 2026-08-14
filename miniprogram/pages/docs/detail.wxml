@@ -1,24 +1,36 @@
 <view class="page" wx:if="{{doc}}">
-  <view class="card">
-    <view class="doc-title">{{doc.name}}</view>
-    <view class="doc-meta">
-      <text class="tag {{doc.type_class}}">{{doc.type}}</text>
-      <text class="tag {{doc.status === 'ready' ? 'tag-green' : doc.status === 'failed' ? 'tag-red' : 'tag-gray'}}">{{statusText(doc.status)}}</text>
-      <text class="sub-text">{{doc.size_kb}}KB · {{doc.created_at}}</text>
+  <!-- 文档头卡 -->
+  <view class="card head-card">
+    <view class="head-top">
+      <view class="head-icon {{doc.type_icon_cls}}">
+        <view class="doc-fold"></view>
+        <text class="doc-label">{{doc.type_icon_label}}</text>
+      </view>
+      <view class="head-main">
+        <view class="doc-title">{{doc.name}}</view>
+        <view class="doc-meta">
+          <text class="tag {{doc.status === 'ready' ? 'tag-green' : doc.status === 'failed' ? 'tag-red' : 'tag-gold'}}">{{statusText(doc.status)}}</text>
+          <text class="sub-text">{{doc.size_kb}}KB · {{doc.created_at}}</text>
+        </view>
+      </view>
     </view>
-    <view wx:if="{{doc.chunk_count}}" class="sub-text" style="margin-top: 8rpx">{{doc.chunk_count}} 个分块</view>
+    <view wx:if="{{doc.chunk_count}}" class="head-chunks">
+      <text class="chunk-num">{{doc.chunk_count}}</text>
+      <text class="sub-text"> 个知识块</text>
+    </view>
     <view wx:if="{{doc.fail_reason}}" class="fail-reason">原因：{{doc.fail_reason}}</view>
     <view class="btn-primary" bindtap="askThisDoc">针对此文档提问</view>
     <view class="btn-plain del" bindtap="deleteDoc">删除文档</view>
   </view>
 
+  <!-- 内容预览 -->
   <view class="card">
     <view class="section-title">内容预览（前 {{chunks.length}} 块）</view>
     <view wx:for="{{chunks}}" wx:key="id" class="chunk">
       <view class="chunk-meta">
         <text class="tag tag-gray">#{{item.seq}}</text>
         <text wx:if="{{item.page_no}}" class="sub-text">p{{item.page_no}}</text>
-        <text wx:if="{{item.meta && item.meta.heading}}" class="sub-text">{{item.meta.heading}}</text>
+        <text wx:if="{{item.meta && item.meta.heading}}" class="sub-text heading-path">{{item.meta.heading}}</text>
       </view>
       <view class="chunk-content">{{item.content}}</view>
     </view>

@@ -77,5 +77,6 @@ class QuotaOut(BaseModel):
     limit: int
     docs: int
     docs_limit: int
+    chunks: int = 0
     storage_bytes: int
     storage_limit: int

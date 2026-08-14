@@ -1,35 +1,57 @@
 <view class="page">
+  <!-- 个人档案卡 -->
   <view class="card profile">
+    <view class="profile-deco"></view>
     <view class="avatar">档</view>
-    <view>
+    <view class="profile-info">
       <view class="name">AI档案室</view>
-      <view class="sub-text">私人知识库 · v0.1</view>
+      <view class="sub-text">私人知识库 · v0.2 极致版</view>
+    </view>
+  </view>
+
+  <!-- 数据概览 -->
+  <view class="stats">
+    <view class="stat-item">
+      <view class="stat-num">{{quota.used || 0}}<text class="stat-unit">/{{quota.limit || 20}}</text></view>
+      <view class="stat-label">今日问答</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-num">{{quota.docs || 0}}<text class="stat-unit">/{{quota.docs_limit || 10}}</text></view>
+      <view class="stat-label">文档数</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-num">{{quota.chunks || 0}}</view>
+      <view class="stat-label">知识块</view>
     </view>
   </view>
 
   <view class="card menu" bindtap="goQuota">
-    <view class="menu-line">
-      <text>我的额度</text>
-      <text class="arrow">›</text>
+    <view class="menu-icon mi-gold">⚡</view>
+    <view class="menu-main">
+      <view class="menu-title">我的额度</view>
+      <view class="sub-text" wx:if="{{quota}}">今日问答 {{quota.used}}/{{quota.limit}} 轮 · 文档 {{quota.docs}}/{{quota.docs_limit}} 个</view>
     </view>
-    <view class="sub-text" wx:if="{{quota}}">
-      今日问答 {{quota.used}}/{{quota.limit}} 轮 · 文档 {{quota.docs}}/{{quota.docs_limit}} 个
-    </view>
+    <view class="arrow">›</view>
   </view>
 
   <view class="card menu" bindtap="goPrivacy">
-    <view class="menu-line">
-      <text>隐私与数据</text>
-      <text class="arrow">›</text>
+    <view class="menu-icon mi-green">🔒</view>
+    <view class="menu-main">
+      <view class="menu-title">隐私与数据</view>
+      <view class="sub-text">你的文档仅用于个人问答</view>
     </view>
+    <view class="arrow">›</view>
   </view>
 
   <view class="card menu">
-    <view class="menu-line">
-      <text>反馈</text>
-      <text class="arrow">›</text>
+    <view class="menu-icon mi-brown">💬</view>
+    <view class="menu-main">
+      <view class="menu-title">反馈</view>
+      <view class="sub-text">自用阶段：直接微信联系开发者</view>
     </view>
-    <view class="sub-text">自用阶段：直接微信联系开发者</view>
+    <view class="arrow">›</view>
   </view>
 
   <view class="footer">AI档案室 · 私有知识库问答</view>

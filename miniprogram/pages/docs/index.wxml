@@ -2,15 +2,29 @@
   <view class="hero">
     <view>
       <view class="hero-title">文档库</view>
-      <view class="hero-sub">上传文档 · 自动解析建索引</view>
+      <view class="hero-sub">{{docs.length ? docs.length + ' 份文档 · ' + totalChunks + ' 个知识块' : '上传文档 · 自动解析建索引'}}</view>
     </view>
     <view class="hero-art">
       <view class="art-box"></view>
       <view class="art-tag"></view>
+      <view class="art-line l1"></view>
+      <view class="art-line l2"></view>
     </view>
   </view>
 
-  <view wx:if="{{docs.length === 0 && !loading}}" class="empty">
+  <!-- 骨架屏 -->
+  <view wx:if="{{loading}}">
+    <view class="card skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+      <view class="skeleton sk-icon"></view>
+      <view class="sk-main">
+        <view class="skeleton sk-line w70"></view>
+        <view class="skeleton sk-line w40"></view>
+        <view class="skeleton sk-line w55"></view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{docs.length === 0}}" class="empty">
     <view class="empty-art">
       <view class="ea-box"></view>
       <view class="ea-line l1"></view>
@@ -18,21 +32,30 @@
       <view class="ea-line l3"></view>
       <view class="ea-corner"></view>
     </view>
-    <view class="empty-text">还没有文档</view>
+    <view class="empty-text">档案柜还是空的</view>
     <view class="sub-text">上传一份文档，开始建立你的资料库</view>
+    <view class="btn-primary empty-btn" bindtap="goUpload">上传第一份文档</view>
   </view>
 
-  <view wx:for="{{docs}}" wx:key="id" class="card doc" data-id="{{item.id}}" bindtap="goDetail">
-    <view class="doc-icon {{item.type_icon_cls}}">{{item.type_icon_label}}</view>
+  <view wx:for="{{docs}}" wx:key="id" class="card doc anim-up" style="animation-delay: {{item.anim_delay}}"
+        data-id="{{item.id}}" bindtap="goDetail">
+    <!-- 文件页图标：白纸 + 折角 + 类型色条 -->
+    <view class="doc-icon {{item.type_icon_cls}}">
+      <view class="doc-fold"></view>
+      <text class="doc-label">{{item.type_icon_label}}</text>
+    </view>
+
     <view class="doc-main">
       <view class="doc-name">{{item.name}}</view>
-      <view class="sub-text">{{item.size_kb}}KB · {{item.created_at}}</view>
+      <view class="doc-meta">{{item.size_kb}}KB · {{item.created_at}}</view>
       <view class="doc-status">
-        <text class="tag {{item.status === 'ready' ? 'tag-green' : item.status === 'failed' ? 'tag-red' : 'tag-gray'}}">{{statusText(item.status)}}</text>
+        <text class="tag {{item.status === 'ready' ? 'tag-green' : item.status === 'failed' ? 'tag-red' : 'tag-gold'}}">{{statusText(item.status)}}</text>
+        <text wx:if="{{item.status === 'processing'}}" class="scan-wrap"><text class="scan-bar"></text></text>
         <text wx:if="{{item.chunk_count}}" class="sub-text">{{item.chunk_count}} 块</text>
       </view>
       <view wx:if="{{item.fail_reason}}" class="fail-reason">原因：{{item.fail_reason}}</view>
     </view>
+
     <view class="del-btn" catchtap="deleteDoc" data-id="{{item.id}}" data-name="{{item.name}}">删除</view>
   </view>
 
