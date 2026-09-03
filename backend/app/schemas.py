@@ -1,5 +1,6 @@
 """Pydantic 请求/响应模型"""
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -65,9 +66,16 @@ class MessageOut(BaseModel):
     role: str
     content: str
     citations: list | None = None
+    feedback: Literal["like", "dislike"] | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class FeedbackBody(BaseModel):
+    """消息反馈请求体；value 传 null 表示取消反馈"""
+
+    value: Literal["like", "dislike"] | None = None
 
 
 # ---------- 问答 ----------

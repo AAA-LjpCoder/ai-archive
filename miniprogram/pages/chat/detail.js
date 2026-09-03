@@ -86,8 +86,83 @@ Page({
       } else if (evt.type === 'done') {
         this.setData({ sending: false, [`messages[${idx}].streaming`]: false });
         this.scrollBottom();
+        // 拉一次历史，拿服务器真实消息 id（供反馈/重新生成使用）
+        this.loadHistory();
       }
     });
+  },
+
+  // 重新生成最后一条 AI 回答
+  regenerate() {
+    const msgs = this.data.messages;
+    const last = msgs[msgs.length - 1];
+    if (this.data.sending || !last || last.role !== 'assistant' || last.streaming) return;
+    wx.showModal({
+      title: '重新生成',
+      content: '将替换这条回答并重跑一遍（消耗一轮问答额度）。',
+      confirmText: '重新生成',
+      confirmColor: '#146B5A',
+      success: (res) => {
+        if (res.confirm) this.doRegenerate();
+      },
+    });
+  },
+
+  doRegenerate() {
+    const idx = this.data.messages.length - 1;
+    this.setData({
+      sending: true,
+      [`messages[${idx}].streaming`]: true,
+      [`messages[${idx}].content`]: '',
+      [`messages[${idx}].nodes`]: [],
+      [`messages[${idx}].citations`]: null,
+    });
+    this.scrollBottom();
+
+    let answer = '';
+    api.streamRegen(this.data.convId, (evt) => {
+      if (evt.type === 'citations') {
+        this.setData({ [`messages[${idx}].citations`]: evt.data });
+      } else if (evt.type === 'delta') {
+        answer += evt.data;
+        this.setData({
+          [`messages[${idx}].content`]: answer,
+          [`messages[${idx}].nodes`]: mdToNodes(answer),
+        });
+        this.scrollBottom();
+      } else if (evt.type === 'error') {
+        answer = '出错了：' + evt.data;
+        this.setData({
+          sending: false,
+          [`messages[${idx}].streaming`]: false,
+          [`messages[${idx}].content`]: answer,
+          [`messages[${idx}].nodes`]: mdToNodes(answer),
+        });
+        wx.showToast({ title: evt.data, icon: 'none' });
+      } else if (evt.type === 'done') {
+        this.setData({ sending: false, [`messages[${idx}].streaming`]: false });
+        this.scrollBottom();
+        this.loadHistory();
+      }
+    });
+  },
+
+  // 点赞/点踩（再点一次取消）
+  toggleFeedback(e) {
+    const { msgidx, val } = e.currentTarget.dataset;
+    const msg = this.data.messages[msgidx];
+    if (!msg || msg.role !== 'assistant' || typeof msg.id !== 'number') return;
+    const next = msg.feedback === val ? null : val;
+    api.request(`/api/messages/${msg.id}/feedback`, 'PUT', { value: next })
+      .then(() => this.setData({ [`messages[${msgidx}].feedback`]: next }))
+      .catch((err) => wx.showToast({ title: err.message, icon: 'none' }));
+  },
+
+  copyAnswer(e) {
+    const { msgidx } = e.currentTarget.dataset;
+    const msg = this.data.messages[msgidx];
+    if (!msg || !msg.content) return;
+    wx.setClipboardData({ data: msg.content });
   },
 
   onCitationTap(e) {

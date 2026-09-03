@@ -68,6 +68,16 @@
           </view>
         </view>
       </view>
+
+      <!-- AI 回答操作栏：赞/踩/复制/重新生成 -->
+      <view wx:if="{{item.role === 'assistant' && item.content && !item.streaming}}" class="msg-actions">
+        <text class="act {{item.feedback === 'like' ? 'act-like' : ''}}" catchtap="toggleFeedback"
+              data-msgidx="{{index}}" data-val="like">赞</text>
+        <text class="act {{item.feedback === 'dislike' ? 'act-dislike' : ''}}" catchtap="toggleFeedback"
+              data-msgidx="{{index}}" data-val="dislike">踩</text>
+        <text class="act" catchtap="copyAnswer" data-msgidx="{{index}}">复制</text>
+        <text wx:if="{{index === messages.length - 1 && !sending}}" class="act act-regen" catchtap="regenerate">重新生成</text>
+      </view>
     </view>
   </scroll-view>
 

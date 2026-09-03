@@ -70,7 +70,7 @@
 /* ---------- 消息 ---------- */
 .msg { display: flex; margin-bottom: 26rpx; animation: fadeUp 0.3s ease both; }
 .msg-user { justify-content: flex-end; }
-.msg-ai { justify-content: flex-start; }
+.msg-ai { justify-content: flex-start; flex-wrap: wrap; }
 
 /* AI 侧档案盒小图标 */
 .msg-avatar {
@@ -114,6 +114,25 @@
   border-bottom-left-radius: 6rpx;
   box-shadow: 0 6rpx 18rpx rgba(45, 42, 38, 0.06);
 }
+
+/* AI 回答操作栏（赞/踩/复制/重新生成） */
+.msg-actions {
+  display: flex; align-items: center; gap: 16rpx;
+  width: calc(100% - 74rpx);
+  margin-left: 74rpx;
+  padding: 8rpx 4rpx 0;
+  box-sizing: border-box;
+}
+.act {
+  font-size: 22rpx; color: #A8A296;
+  padding: 6rpx 14rpx; border-radius: 10rpx;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.act:active { color: #146B5A; background: rgba(20, 107, 90, 0.08); }
+.act-like { color: #146B5A; font-weight: 600; background: rgba(20, 107, 90, 0.08); }
+.act-dislike { color: #B4492E; font-weight: 600; background: rgba(176, 73, 46, 0.08); }
+.act-regen { color: #B7791F; margin-left: auto; }
+.act-regen:active { color: #B7791F; background: rgba(183, 121, 31, 0.1); }
 
 /* 流式打字光标 */
 .caret {

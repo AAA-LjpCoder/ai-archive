@@ -107,6 +107,19 @@ class Message(Base):
     conversation: Mapped[Conversation] = relationship(back_populates="messages")
 
 
+class MessageFeedback(Base):
+    """消息反馈：点赞/点踩（同一用户对同一消息最多一条，可改可删）"""
+
+    __tablename__ = "message_feedback"
+
+    message_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("messages.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    value: Mapped[str] = mapped_column(String(10))  # like / dislike
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
 class QuotaLog(Base):
     __tablename__ = "quota_logs"
 

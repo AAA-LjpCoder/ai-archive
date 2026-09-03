@@ -46,10 +46,19 @@ function uploadFile(path, filePath, name = 'file', formData = {}) {
 // 流式问答（SSE over wx.request enableChunked）
 // 回调: onEvent({type: 'citations'|'delta'|'done'|'error', data})
 function streamAsk(convId, question, searchOnly, onEvent) {
+  return streamPost(`/api/conversations/${convId}/ask`, { question, search_only: searchOnly }, onEvent);
+}
+
+// 重新生成最后一条回答（SSE）
+function streamRegen(convId, onEvent) {
+  return streamPost(`/api/conversations/${convId}/regenerate`, null, onEvent);
+}
+
+function streamPost(url, data, onEvent) {
   const task = wx.request({
-    url: baseUrl() + `/api/conversations/${convId}/ask`,
+    url: baseUrl() + url,
     method: 'POST',
-    data: { question, search_only: searchOnly },
+    data,
     header: { 'content-type': 'application/json' },
     enableChunked: true,
     success: (res) => {
@@ -78,4 +87,4 @@ function streamAsk(convId, question, searchOnly, onEvent) {
   return task;
 }
 
-module.exports = { request, uploadFile, streamAsk, baseUrl };
+module.exports = { request, uploadFile, streamAsk, streamRegen, baseUrl };
