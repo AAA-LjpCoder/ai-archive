@@ -4,6 +4,7 @@
     <view class="privacy-item">你的文档仅你本人可见</view>
     <view class="privacy-item">数据全链路 HTTPS 传输</view>
     <view class="privacy-item">删除文档 = 物理删除原文、向量与分块</view>
+    <view class="privacy-item">清空数据 = 文档 + 会话 + 额度记录全部物理删除，不可恢复</view>
     <view class="privacy-item">AI 回答由大模型生成，仅供辅助参考</view>
     <view class="privacy-item">上传内容将接受内容安全审核</view>
   </view>

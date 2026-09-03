@@ -9,7 +9,7 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.db import Base, engine
-from app.routers import chat, docs, quota
+from app.routers import chat, docs, me, quota
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,6 +35,7 @@ app.add_middleware(
 app.include_router(docs.router)
 app.include_router(chat.router)
 app.include_router(quota.router)
+app.include_router(me.router)
 
 
 @app.get("/health")
