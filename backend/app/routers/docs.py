@@ -10,7 +10,7 @@ from app.auth import get_current_user
 from app.config import settings
 from app.db import get_db
 from app.models import Chunk, Document
-from app.schemas import ChunkOut, DocumentOut
+from app.schemas import ChunkOut, DocumentOut, DocumentUpdate
 from app.services.processor import process_document
 
 router = APIRouter(prefix="/api/docs", tags=["docs"])
@@ -109,6 +109,23 @@ def get_doc_chunks(
         .scalars()
         .all()
     )
+
+
+@router.patch("/{doc_id}", response_model=DocumentOut)
+def rename_doc(
+    doc_id: int,
+    payload: DocumentUpdate,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_user),
+):
+    """重命名文档（仅改名称，不影响类型/索引）"""
+    doc = db.get(Document, doc_id)
+    if doc is None or doc.user_id != user_id:
+        raise HTTPException(404, "文档不存在")
+    doc.name = payload.name
+    db.commit()
+    db.refresh(doc)
+    return doc
 
 
 @router.delete("/{doc_id}")

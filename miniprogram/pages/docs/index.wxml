@@ -56,7 +56,7 @@
       <view wx:if="{{item.fail_reason}}" class="fail-reason">原因：{{item.fail_reason}}</view>
     </view>
 
-    <view class="del-btn" catchtap="deleteDoc" data-id="{{item.id}}" data-name="{{item.name}}">删除</view>
+    <view class="ops-btn" catchtap="openOps" data-id="{{item.id}}" data-name="{{item.name}}">•••</view>
   </view>
 
   <view class="fab" bindtap="goUpload">＋ 上传文档</view>

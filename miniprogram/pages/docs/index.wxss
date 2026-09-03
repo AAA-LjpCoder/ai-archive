@@ -70,6 +70,8 @@
 .fail-reason { color: #B4492E; font-size: 22rpx; margin-top: 8rpx; word-break: break-all; }
 .del-btn { color: #C9C2B4; font-size: 24rpx; padding: 10rpx 6rpx 10rpx 16rpx; flex-shrink: 0; transition: color 0.15s ease; }
 .del-btn:active { color: #B4492E; }
+.ops-btn { color: #C9C2B4; font-size: 26rpx; letter-spacing: 2rpx; padding: 10rpx 2rpx 10rpx 16rpx; flex-shrink: 0; transition: color 0.15s ease; }
+.ops-btn:active { color: #146B5A; }
 
 /* 解析中扫描动画 */
 .scan-wrap {

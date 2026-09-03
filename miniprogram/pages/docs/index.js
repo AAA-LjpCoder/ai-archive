@@ -53,15 +53,51 @@ Page({
   goUpload() { wx.navigateTo({ url: '/pages/docs/upload' }); },
   goDetail(e) { wx.navigateTo({ url: `/pages/docs/detail?id=${e.currentTarget.dataset.id}` }); },
 
-  deleteDoc(e) {
-    const { id, name } = e.currentTarget.dataset;
+  deleteDoc(id, name) {
     wx.showModal({
       title: '删除文档',
       content: `确认删除「${name}」？向量数据将一并清除。`,
       success: (res) => {
         if (!res.confirm) return;
         api.request(`/api/docs/${id}`, 'DELETE')
-          .then(() => this.load())
+          .then(() => {
+            wx.showToast({ title: '已删除', icon: 'success' });
+            this.load();
+          })
+          .catch((err) => wx.showToast({ title: err.message, icon: 'none' }));
+      },
+    });
+  },
+
+  // 卡片右侧操作菜单（重命名/删除）
+  openOps(e) {
+    const { id, name } = e.currentTarget.dataset;
+    wx.showActionSheet({
+      itemList: ['重命名', '删除'],
+      success: (res) => {
+        if (res.tapIndex === 0) this.renameDoc(id, name);
+        else if (res.tapIndex === 1) this.deleteDoc(id, name);
+      },
+    });
+  },
+
+  renameDoc(id, oldName) {
+    wx.showModal({
+      title: '重命名文档',
+      editable: true,
+      placeholderText: oldName,
+      success: (res) => {
+        if (!res.confirm) return;
+        const name = (res.content || '').trim();
+        if (!name) {
+          wx.showToast({ title: '名称不能为空', icon: 'none' });
+          return;
+        }
+        api.request(`/api/docs/${id}`, 'PATCH', { name })
+          .then(() => {
+            wx.showToast({ title: '已重命名', icon: 'success' });
+            this.load();
+          })
           .catch((err) => wx.showToast({ title: err.message, icon: 'none' }));
       },
     });

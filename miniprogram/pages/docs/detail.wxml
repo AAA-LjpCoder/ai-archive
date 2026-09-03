@@ -20,7 +20,10 @@
     </view>
     <view wx:if="{{doc.fail_reason}}" class="fail-reason">原因：{{doc.fail_reason}}</view>
     <view class="btn-primary" bindtap="askThisDoc">针对此文档提问</view>
-    <view class="btn-plain del" bindtap="deleteDoc">删除文档</view>
+    <view class="btn-row">
+      <view class="btn-plain" bindtap="renameDoc">重命名</view>
+      <view class="btn-plain del" bindtap="deleteDoc">删除文档</view>
+    </view>
   </view>
 
   <!-- 内容预览 -->

@@ -50,6 +50,8 @@
 
 .fail-reason { color: #B4492E; font-size: 24rpx; margin: 14rpx 0; word-break: break-all; }
 .del { color: #B4492E; border-color: #B4492E; }
+.btn-row { display: flex; gap: 20rpx; }
+.btn-row .btn-plain { flex: 1; margin: 16rpx 0 0; }
 
 /* 分块预览 */
 .chunk {

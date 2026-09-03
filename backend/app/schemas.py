@@ -1,7 +1,7 @@
 """Pydantic 请求/响应模型"""
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ---------- 文档 ----------
@@ -16,6 +16,20 @@ class DocumentOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class DocumentUpdate(BaseModel):
+    """重命名文档请求体"""
+
+    name: str = Field(..., max_length=255, description="新的文档名")
+
+    @field_validator("name")
+    @classmethod
+    def strip_name(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("文档名不能为空")
+        return v
 
 
 class ChunkOut(BaseModel):

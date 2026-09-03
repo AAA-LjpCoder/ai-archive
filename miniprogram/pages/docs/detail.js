@@ -67,6 +67,30 @@ Page({
       });
   },
 
+  renameDoc() {
+    const doc = this.data.doc;
+    if (!doc) return;
+    wx.showModal({
+      title: '重命名文档',
+      editable: true,
+      placeholderText: doc.name,
+      success: (res) => {
+        if (!res.confirm) return;
+        const name = (res.content || '').trim();
+        if (!name) {
+          wx.showToast({ title: '名称不能为空', icon: 'none' });
+          return;
+        }
+        api.request(`/api/docs/${this.docId}`, 'PATCH', { name })
+          .then(() => {
+            wx.showToast({ title: '已重命名', icon: 'success' });
+            this.load();
+          })
+          .catch((e) => wx.showToast({ title: e.message, icon: 'none' }));
+      },
+    });
+  },
+
   deleteDoc() {
     wx.showModal({
       title: '删除文档',
