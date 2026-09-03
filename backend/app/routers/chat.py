@@ -5,7 +5,7 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from sqlalchemy import select
+from sqlalchemy import exists, or_, select
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
@@ -22,13 +22,28 @@ router = APIRouter(prefix="/api", tags=["chat"])
 
 # ---------- 会话 ----------
 @router.get("/conversations", response_model=list[ConversationOut])
-def list_conversations(db: Session = Depends(get_db), user_id: str = Depends(get_current_user)):
-    return (
-        db.execute(
-            select(Conversation)
-            .where(Conversation.user_id == user_id)
-            .order_by(Conversation.updated_at.desc())
+def list_conversations(
+    q: str | None = None,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_user),
+):
+    """会话列表；q 非空时按标题或用户提问内容模糊搜索"""
+    stmt = select(Conversation).where(Conversation.user_id == user_id)
+    if q and q.strip():
+        like = f"%{q.strip()}%"
+        stmt = stmt.where(
+            or_(
+                Conversation.title.ilike(like),
+                exists().where(
+                    Message.conversation_id == Conversation.id,
+                    Message.user_id == user_id,
+                    Message.role == "user",
+                    Message.content.ilike(like),
+                ),
+            )
         )
+    return (
+        db.execute(stmt.order_by(Conversation.updated_at.desc()))
         .scalars()
         .all()
     )

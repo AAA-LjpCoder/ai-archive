@@ -42,3 +42,31 @@
 .conv-actions { display: flex; align-items: center; flex-shrink: 0; }
 .del-btn { color: #C9C2B4; font-size: 24rpx; margin-left: 16rpx; padding: 10rpx 6rpx; transition: color 0.15s ease; }
 .del-btn:active { color: #B4492E; }
+
+/* 搜索栏 */
+.searchbar {
+  display: flex; align-items: center; gap: 18rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 20rpx 28rpx;
+  margin: 4rpx 24rpx 16rpx;
+  box-shadow: 0 6rpx 24rpx rgba(45, 42, 38, 0.06), 0 1rpx 3rpx rgba(45, 42, 38, 0.04);
+}
+.search-icon {
+  position: relative;
+  width: 24rpx; height: 24rpx;
+  border: 4rpx solid #B9B2A6;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.search-icon::after {
+  content: '';
+  position: absolute; right: -11rpx; bottom: -7rpx;
+  width: 13rpx; height: 4rpx;
+  background: #B9B2A6; border-radius: 4rpx;
+  transform: rotate(45deg);
+}
+.search-input { flex: 1; font-size: 28rpx; }
+.search-ph { color: #B9B2A6; }
+.search-clear { color: #B9B2A6; font-size: 26rpx; padding: 8rpx 4rpx; }
+.search-clear:active { color: #B4492E; }

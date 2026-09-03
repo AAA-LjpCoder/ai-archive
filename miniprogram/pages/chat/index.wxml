@@ -12,6 +12,14 @@
     </view>
   </view>
 
+  <!-- 搜索栏 -->
+  <view class="searchbar">
+    <view class="search-icon"></view>
+    <input class="search-input" placeholder="搜索会话标题或提问内容" placeholder-class="search-ph"
+           value="{{q}}" bindinput="onSearchInput" confirm-type="search" />
+    <view wx:if="{{q}}" class="search-clear" catchtap="clearSearch">✕</view>
+  </view>
+
   <!-- 骨架屏 -->
   <view wx:if="{{loading}}">
     <view class="card skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
@@ -31,8 +39,8 @@
       <view class="ea-line l3"></view>
       <view class="ea-corner"></view>
     </view>
-    <view class="empty-text">还没有会话</view>
-    <view class="sub-text">点右下角按钮开始提问</view>
+    <view class="empty-text">{{q ? '没有匹配的会话' : '还没有会话'}}</view>
+    <view class="sub-text">{{q ? '换个关键词试试' : '点右下角按钮开始提问'}}</view>
   </view>
 
   <view wx:for="{{convs}}" wx:key="id" class="card conv anim-up" style="animation-delay: {{index * 50}}ms"

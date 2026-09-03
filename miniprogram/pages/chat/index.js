@@ -2,18 +2,34 @@
 const api = require('../../utils/api');
 
 Page({
-  data: { convs: [], loading: true },
+  data: { convs: [], loading: true, q: '' },
 
   onShow() { this.load(); },
 
-  async load() {
+  async load(silent) {
+    const q = (this.data.q || '').trim();
+    if (!silent) this.setData({ loading: true });
     try {
-      const convs = await api.request('/api/conversations');
+      const url = '/api/conversations' + (q ? `?q=${encodeURIComponent(q)}` : '');
+      const convs = await api.request(url);
       this.setData({ convs, loading: false });
     } catch (e) {
       this.setData({ loading: false });
       wx.showToast({ title: e.message, icon: 'none' });
     }
+  },
+
+  // 搜索：300ms 防抖，静默刷新（不闪骨架屏）
+  onSearchInput(e) {
+    this.setData({ q: e.detail.value });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.load(true), 300);
+  },
+
+  clearSearch() {
+    clearTimeout(this._t);
+    this.setData({ q: '' });
+    this.load();
   },
 
   newConversation() {
