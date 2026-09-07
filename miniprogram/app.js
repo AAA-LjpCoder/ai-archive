@@ -1,9 +1,9 @@
 // app.js — AI档案室
 App({
   globalData: {
-    // 联调环境：腾讯云服务器；开发者工具需勾选"不校验合法域名"（project.config.json urlCheck:false）
-    // 上架前 M2 换 https 域名 + ICP 备案
-    baseUrl: 'http://122.51.27.182:8000',
+    // 2026-09-07 M2：HTTPS 已就绪（证书已部署 + 443 放行 + SSE 验证通过）
+    baseUrl: 'https://api.ai-archive.site',
+    // 旧联调地址备用：http://110.42.233.73:8000（开发者工具需勾选"不校验合法域名" urlCheck:false）
     userOpenid: ''
   },
 
