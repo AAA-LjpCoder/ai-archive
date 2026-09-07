@@ -37,6 +37,76 @@ Page({
   onInput(e) { this.setData({ input: e.detail.value }); },
   toggleSearchOnly(e) { this.setData({ searchOnly: e.detail.value }); },
 
+  // ---- 会话框附件：图/文件 → 入库 → 自动开单文档会话 ----
+  attachTap() {
+    if (this.data.sending) return;
+    wx.showActionSheet({
+      itemList: ['拍照上传', '相册图片上传', '聊天选择文件'],
+      success: (res) => {
+        if (res.tapIndex === 0) this._pickAndUpload('camera');
+        else if (res.tapIndex === 1) this._pickAndUpload('album');
+        else if (res.tapIndex === 2) this._pickAndUpload('chat');
+      },
+    });
+  },
+
+  _pickAndUpload(source) {
+    if (source === 'chat') {
+      wx.chooseMessageFile({
+        count: 1,
+        type: 'all',
+        success: (r) => {
+          const f = r.tempFiles[0];
+          if (f) this._uploadAttach(f.path, f.name || '', f.size || 0);
+        },
+      });
+      return;
+    }
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: [source],
+      sizeType: ['compressed'],
+      success: (r) => {
+        const f = r.tempFiles[0];
+        if (!f) return;
+        let ext = (f.tempFilePath.match(/\.(\w+)$/) || [])[1];
+        ext = ext && /^(jpe?g|png|webp|bmp|gif)$/i.test(ext) ? ext.toLowerCase() : 'jpg';
+        const now = new Date();
+        const pad = (n) => (n < 10 ? '0' + n : '' + n);
+        const ts = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+        const name = `${source === 'camera' ? '拍照' : '图片'}_${ts}.${ext}`;
+        this._uploadAttach(f.tempFilePath, name, f.size || 0);
+      },
+    });
+  },
+
+  async _uploadAttach(path, name, size) {
+    if (size > 20 * 1024 * 1024) {
+      wx.showToast({ title: '文件超过 20MB 限制', icon: 'none' });
+      return;
+    }
+    wx.showLoading({ title: '上传入库中…' });
+    try {
+      const doc = await api.uploadFile('/api/docs/upload', path, 'file', { filename: name });
+      wx.showLoading({ title: '创建会话…' });
+      const conv = await api.request('/api/conversations', 'POST', {
+        mode: 'doc',
+        doc_id: doc.id,
+        title: doc.name,
+      });
+      wx.hideLoading();
+      wx.showToast({ title: '已入库，识别完成即可提问', icon: 'none' });
+      setTimeout(
+        () => wx.redirectTo({ url: `/pages/chat/detail?id=${conv.id}&mode=doc` }),
+        900
+      );
+    } catch (e) {
+      wx.hideLoading();
+      wx.showToast({ title: (e && e.message) || '上传失败', icon: 'none' });
+    }
+  },
+
   scrollBottom() {
     // 必须指向真实存在的节点，否则 scroll-into-view 找不到目标可能引发渲染层异常
     const len = this.data.messages.length;

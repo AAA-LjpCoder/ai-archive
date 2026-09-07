@@ -82,6 +82,9 @@
   </scroll-view>
 
   <view class="input-bar">
+    <view class="attach-btn {{sending ? 'btn-disabled' : ''}}" bindtap="attachTap">
+      <text class="attach-plus">+</text>
+    </view>
     <textarea class="input-box" value="{{input}}" bindinput="onInput"
               placeholder="输入你的问题…" auto-height maxlength="2000"
               confirm-type="send" bindconfirm="send" />
