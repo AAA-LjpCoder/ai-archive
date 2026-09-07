@@ -53,7 +53,7 @@
         <view wx:if="{{item.status === 'processing'}}" class="scan-wrap"><view class="scan-bar"></view></view>
         <text wx:if="{{item.chunk_count}}" class="sub-text">{{item.chunk_count}} 块</text>
       </view>
-      <view wx:if="{{item.fail_reason}}" class="fail-reason">原因：{{item.fail_reason}}</view>
+      <view wx:if="{{item.status === 'failed' && item.fail_reason}}" class="fail-reason">原因：{{item.fail_reason}}</view>
     </view>
 
     <view class="ops-btn" catchtap="openOps" data-id="{{item.id}}" data-name="{{item.name}}">•••</view>

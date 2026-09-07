@@ -60,6 +60,7 @@ def _process(db: Session, doc_id: int) -> None:
             )
         doc.chunk_count = len(pieces)
         doc.status = "ready"
+        doc.fail_reason = None  # 成功后清掉历史失败文案（重处理场景）
         db.commit()
         logger.info("doc %s processed, %d chunks", doc_id, len(pieces))
     except Exception as exc:  # noqa: BLE001

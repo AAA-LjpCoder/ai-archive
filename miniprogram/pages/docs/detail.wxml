@@ -18,7 +18,7 @@
       <text class="chunk-num">{{doc.chunk_count}}</text>
       <text class="sub-text"> 个知识块</text>
     </view>
-    <view wx:if="{{doc.fail_reason}}" class="fail-reason">原因：{{doc.fail_reason}}</view>
+    <view wx:if="{{doc.status === 'failed' && doc.fail_reason}}" class="fail-reason">原因：{{doc.fail_reason}}</view>
     <view class="btn-primary" bindtap="askThisDoc">针对此文档提问</view>
     <view class="btn-row">
       <view class="btn-plain" bindtap="renameDoc">重命名</view>
