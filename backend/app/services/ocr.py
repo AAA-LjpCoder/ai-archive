@@ -15,7 +15,9 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-OCR_MODEL = "PaddlePaddle/PaddleOCR-VL-1.5"
+# 2026-09-07 实测：PaddleOCR-VL-1.5 在硅基流动输出乱码、DeepSeek-OCR 空响应；
+# Qwen3-VL-8B 识别准确（中英文文档/截图）→ 定为主模型
+OCR_MODEL = "Qwen/Qwen3-VL-8B-Instruct"
 OCR_PROMPT = (
     "你是文档 OCR 引擎。请完整识别图片中的所有文字内容，"
     "保留原有段落结构、标题层级和表格结构（表格用 | 分隔单元格）。"
@@ -60,7 +62,7 @@ def ocr_image(image_bytes: bytes, timeout: float = 60.0) -> str:
             }
         ],
         "temperature": 0.1,
-        "max_tokens": 2048,
+        "max_tokens": 4096,
     }
     with httpx.Client(timeout=timeout) as client:
         resp = client.post(
@@ -89,7 +91,7 @@ async def ocr_image_async(image_bytes: bytes, timeout: float = 60.0) -> str:
             }
         ],
         "temperature": 0.1,
-        "max_tokens": 2048,
+        "max_tokens": 4096,
     }
     async with httpx.AsyncClient(timeout=timeout) as client:
         resp = await client.post(

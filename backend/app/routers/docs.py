@@ -18,6 +18,8 @@ router = APIRouter(prefix="/api/docs", tags=["docs"])
 ALLOWED_TYPES = {
     "txt", "md", "markdown", "pdf", "docx", "doc",
     "pptx", "xlsx", "xls", "epub", "html", "htm", "csv",
+    # 第 5 步：图片直传 → VLM OCR
+    "jpg", "jpeg", "png", "webp", "bmp", "gif",
 }
 
 
@@ -32,7 +34,7 @@ async def upload_doc(
     raw_name = (filename or file.filename or "").strip()
     ftype = raw_name.rsplit(".", 1)[-1].lower() if "." in raw_name else ""
     if ftype not in ALLOWED_TYPES:
-        raise HTTPException(400, f"不支持的文件格式: {ftype}（支持 txt/md/pdf/docx/pptx/xlsx/epub/html/csv）")
+        raise HTTPException(400, f"不支持的文件格式: {ftype}（支持 txt/md/pdf/docx/pptx/xlsx/epub/html/csv/图片 jpg·png·webp）")
 
     # 数量与容量校验
     n_docs = db.scalar(

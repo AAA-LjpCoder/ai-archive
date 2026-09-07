@@ -1,23 +1,33 @@
 <view class="page">
   <view class="card upload-card">
-    <view class="section-title">选择文件</view>
+    <view class="section-title">选择来源</view>
+    <view class="src-row">
+      <view class="src-btn" bindtap="pickFromCamera">📷 拍照</view>
+      <view class="src-btn" bindtap="pickFromAlbum">🖼 相册图片</view>
+      <view class="src-btn" bindtap="chooseFile">💬 聊天文件</view>
+    </view>
+
     <view class="file-box" bindtap="chooseFile">
       <view wx:if="{{!fileName}}" class="file-empty">
         <view class="file-empty-icon">
           <view class="fe-box"></view>
           <view class="fe-tag"></view>
         </view>
-        <view class="file-empty-text">点击选择文件</view>
-        <view class="sub-text">txt / md / pdf / docx / pptx / xlsx / epub / html / csv</view>
-        <view class="sub-text">单文件 ≤ 20MB</view>
+        <view class="file-empty-text">点击选择文档 / 图片</view>
+        <view class="sub-text">txt md pdf docx pptx xlsx epub html csv / jpg png</view>
+        <view class="sub-text">单文件 ≤ 20MB · 图片自动 OCR 识别文字</view>
       </view>
-      <view wx:else class="file-name">{{fileName}}</view>
+      <view wx:else class="file-picked">
+        <image wx:if="{{isImage}}" class="file-thumb" src="{{filePath}}" mode="aspectFill"></image>
+        <view class="file-name">{{fileName}}</view>
+      </view>
     </view>
+
     <view class="btn-primary {{uploading ? 'btn-disabled' : ''}}" bindtap="upload">
       {{uploading ? '上传解析中…' : '开始上传'}}
     </view>
     <view class="sub-text tips">
-      上传后自动解析建索引，处理完成即可提问。加密或损坏的文件会提示失败。
+      上传后自动解析建索引，处理完成即可提问。拍照/相册/聊天里的图片也能直接识别文字入库。
     </view>
   </view>
 

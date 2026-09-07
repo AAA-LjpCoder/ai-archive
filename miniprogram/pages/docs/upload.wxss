@@ -1,12 +1,34 @@
 /* pages/docs/upload.wxss — 上传页 V2 */
 .upload-card { padding: 36rpx 32rpx; }
 
+/* 来源按钮行 V3 */
+.src-row { display: flex; gap: 16rpx; margin: 20rpx 0 24rpx; }
+.src-btn {
+  flex: 1;
+  text-align: center;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #146B5A;
+  background: #EAF2EF;
+  border: 2rpx solid #CDE3DC;
+  border-radius: 14rpx;
+  padding: 18rpx 0;
+  transition: opacity 0.15s ease;
+}
+.src-btn:active { opacity: 0.7; }
+
+.file-picked { display: flex; flex-direction: column; align-items: center; gap: 12rpx; }
+.file-thumb {
+  width: 220rpx; height: 220rpx;
+  border-radius: 14rpx;
+  background: #EFEBE3;
+}
 .file-box {
   border: 3rpx dashed #D9D2C5;
   border-radius: 22rpx;
   padding: 48rpx 28rpx;
   text-align: center;
-  margin: 16rpx 0 8rpx;
+  margin: 0 0 8rpx;
   transition: border-color 0.15s ease, background 0.15s ease;
   background: #FBF9F5;
 }
@@ -50,4 +72,6 @@
 .fd-html { background: #0891B2; }
 .fd-csv { background: #64748B; }
 .fd-txt { background: #8A8075; }
+.fd-jpg { background: #0EA5A4; }
+.fd-png { background: #65A30D; }
 .fmt-name { font-size: 24rpx; color: #57534A; }

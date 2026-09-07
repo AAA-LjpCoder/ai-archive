@@ -52,7 +52,27 @@ def parse_file(path: Path, ftype: str) -> ParsedDoc:
         return _parse_html(path)
     if ftype == "csv":
         return _parse_csv(path)
+    if ftype in ("jpg", "jpeg", "png", "webp", "bmp", "gif"):
+        return _parse_image(path)
     raise ValueError(f"不支持的文件格式: {ftype}")
+
+
+def _parse_image(path: Path) -> ParsedDoc:
+    """图片 → VLM OCR → 结构化块（拍照/相册/聊天图）"""
+    from app.services.ocr import ocr_image
+
+    img_bytes = path.read_bytes()
+    if len(img_bytes) < 64:
+        raise ValueError("图片文件无效或为空")
+    text = ocr_image(img_bytes)
+    if not text.strip():
+        raise ValueError("未能从图片中识别出文字（模糊/纯图？）")
+    doc = ParsedDoc()
+    doc.pages.append((1, text))
+    for b in _plain_to_blocks(text):
+        b.page_no = 1
+        doc.blocks.append(b)
+    return doc
 
 
 # ---------- txt / md ----------
