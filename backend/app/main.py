@@ -9,7 +9,7 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.db import Base, engine
-from app.routers import chat, docs, me, quota
+from app.routers import auth, chat, docs, me, quota
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,6 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(docs.router)
 app.include_router(chat.router)
 app.include_router(quota.router)

@@ -5,14 +5,33 @@ function baseUrl() {
   return app.globalData.baseUrl;
 }
 
-function request(path, method = 'GET', data = null) {
+// 附加登录 token（Authorization: Bearer）
+function authHeaders(extra) {
+  const h = extra || {};
+  const token = (app.globalData && app.globalData.token) || wx.getStorageSync('token') || '';
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  return h;
+}
+
+function request(path, method = 'GET', data = null, _retried = false) {
   return new Promise((resolve, reject) => {
     wx.request({
       url: baseUrl() + path,
       method,
       data,
-      header: { 'content-type': 'application/json' },
+      header: authHeaders({ 'content-type': 'application/json' }),
       success: (res) => {
+        if (res.statusCode === 401 && !_retried) {
+          // token 失效：重新登录后重试一次
+          app.ensureLogin().then((ok) => {
+            if (ok) {
+              request(path, method, data, true).then(resolve).catch(reject);
+            } else {
+              reject(new Error('未登录，请稍后重试'));
+            }
+          });
+          return;
+        }
         if (res.statusCode >= 200 && res.statusCode < 300) resolve(res.data);
         else reject(new Error((res.data && res.data.detail) || `HTTP ${res.statusCode}`));
       },
@@ -22,14 +41,25 @@ function request(path, method = 'GET', data = null) {
 }
 
 // 上传文件（formData 可携带额外字段，如原始文件名）
-function uploadFile(path, filePath, name = 'file', formData = {}) {
+function uploadFile(path, filePath, name = 'file', formData = {}, _retried = false) {
   return new Promise((resolve, reject) => {
     wx.uploadFile({
       url: baseUrl() + path,
       filePath,
       name,
       formData,
+      header: authHeaders(),
       success: (res) => {
+        if (res.statusCode === 401 && !_retried) {
+          app.ensureLogin().then((ok) => {
+            if (ok) {
+              uploadFile(path, filePath, name, formData, true).then(resolve).catch(reject);
+            } else {
+              reject(new Error('未登录，请稍后重试'));
+            }
+          });
+          return;
+        }
         try {
           const data = JSON.parse(res.data);
           if (res.statusCode >= 200 && res.statusCode < 300) resolve(data);
@@ -87,11 +117,11 @@ function streamPost(url, data, onEvent) {
     url: baseUrl() + url,
     method: 'POST',
     data,
-    header: { 'content-type': 'application/json' },
+    header: authHeaders({ 'content-type': 'application/json' }),
     enableChunked: true,
     success: (res) => {
       if (res.statusCode >= 300) {
-        onEvent({ type: 'error', data: (res.data && res.data.detail) || `HTTP ${res.statusCode}` });
+        onEvent({ type: 'error', data: res.statusCode === 401 ? '登录已过期，请重新打开小程序' : ((res.data && res.data.detail) || `HTTP ${res.statusCode}`) });
       }
     },
     fail: (err) => onEvent({ type: 'error', data: '网络请求失败：' + err.errMsg }),

@@ -2,7 +2,9 @@
 import json
 from collections.abc import AsyncGenerator
 from datetime import date
+from functools import partial
 
+import anyio
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy import exists, or_, select
@@ -147,7 +149,11 @@ def delete_conversation(
 
 
 # ---------- 问答（SSE） ----------
-def _check_quota(db: Session, user_id: str) -> None:
+def _reserve_quota(db: Session, user_id: str) -> None:
+    """额度预扣：检查 + 立即占用 1 次（防并发双开/断流白嫖）
+
+    流正常完成则保留扣减；无内容/异常由 _refund_quota 回补。
+    """
     today = date.today().isoformat()
     user = db.get(User, user_id)
     if user is None:
@@ -158,9 +164,19 @@ def _check_quota(db: Session, user_id: str) -> None:
     if user.quota_date != today:
         user.quota_date = today
         user.quota_used = 0
+    if (user.quota_used or 0) >= settings.daily_quota_asks:
         db.commit()
-    if user.quota_used >= settings.daily_quota_asks:
         raise HTTPException(429, f"今日问答额度已用完（{settings.daily_quota_asks} 轮），看广告可解锁")
+    user.quota_used = (user.quota_used or 0) + 1
+    db.commit()
+
+
+def _refund_quota(db: Session, user_id: str) -> None:
+    """回补额度（LLM 未实际生成时）"""
+    user = db.get(User, user_id)
+    if user is not None and (user.quota_used or 0) > 0:
+        user.quota_used -= 1
+        db.commit()
 
 
 async def _ask_stream(
@@ -171,14 +187,26 @@ async def _ask_stream(
     search_only: bool,
     add_user_msg: bool = True,
     history_cut: int = 0,
+    reserved: bool = False,
 ) -> AsyncGenerator[str, None]:
     """问答 SSE 事件流（ask 与 regenerate 共用）。
 
     add_user_msg: 是否把当前问题落库为用户消息（regenerate 复用已有提问时传 False）
     history_cut: 从历史末尾丢弃 N 条（regenerate 剔除与当前问题重复的提问）
+    reserved: 是否已预扣额度（handler 预扣；本生成器负责失败时回补）
     """
+    refunded = False
+
+    def _refund() -> None:
+        """回补预扣额度（幂等：只回补一次）"""
+        nonlocal refunded
+        if reserved and not refunded:
+            _refund_quota(db, user_id)
+            refunded = True
+
     conv = db.get(Conversation, conv_id)
     if conv is None or conv.user_id != user_id:
+        _refund()
         yield f"data: {json.dumps({'type': 'error', 'data': '会话不存在'}, ensure_ascii=False)}\n\n"
         yield f"data: {json.dumps({'type': 'done'})}\n\n"
         return
@@ -187,30 +215,32 @@ async def _ask_stream(
     conv_mode_v, conv_doc_id_v = conv.mode, conv.doc_id
 
     try:
-        # 1) 向量化问题
-        q_emb = embedding_client.embed_one(question)
-        # 2) 混合检索
-        chunks = hybrid_search(
-            db, user_id, question, q_emb,
-            doc_id=conv_doc_id_v if conv_mode_v == "doc" else None,
+        # 1) 向量化问题 + 2) 混合检索（同步重活丢线程池，避免阻塞事件循环）
+        q_emb = await anyio.to_thread.run_sync(embedding_client.embed_one, question)
+        doc_id = conv_doc_id_v if conv_mode_v == "doc" else None
+        chunks = await anyio.to_thread.run_sync(
+            partial(hybrid_search, db=db, user_id=user_id, query=question,
+                    query_embedding=q_emb, doc_id=doc_id)
         )
-        citations = [
-            {
-                "doc_id": c.doc_id,
-                "doc_name": _doc_name(db, c.doc_id),
-                "content": c.content,  # 完整内容（LLM prompt 用）
-                "snippet": c.content[:200],  # 截断片段（前端展示用）
-                "page_no": c.page_no,
-                "heading": (c.meta or {}).get("heading"),  # 标题路径（溯源展示）
-                "chunk_id": c.id,
-            }
-            for c in chunks
-        ]
+        citations = await anyio.to_thread.run_sync(
+            _build_citations, db, chunks
+        )
         # 3) 先推引用
         yield f"data: {json.dumps({'type': 'citations', 'data': citations}, ensure_ascii=False)}\n\n"
 
-        if search_only or not citations:
-            answer = "你的文档中没有相关内容。" if not citations else "（仅检索模式）已找到以上相关片段。"
+        if search_only:
+            answer = "（仅检索模式）已找到以上相关片段。" if citations else "你的文档中没有相关内容。"
+            yield f"data: {json.dumps({'type': 'delta', 'data': answer}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+            _save_pair(
+                db, conv_id_v, conv_user_id_v, conv_title_v,
+                question, answer, citations, add_user_msg=add_user_msg,
+            )
+            return
+        if not citations:
+            # 未触发 LLM：回补额度
+            _refund()
+            answer = "你的文档中没有相关内容。"
             yield f"data: {json.dumps({'type': 'delta', 'data': answer}, ensure_ascii=False)}\n\n"
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
             _save_pair(
@@ -235,8 +265,28 @@ async def _ask_stream(
             question, answer, citations, add_user_msg=add_user_msg,
         )
     except Exception as exc:  # noqa: BLE001
+        _refund()
         yield f"data: {json.dumps({'type': 'error', 'data': str(exc)[:300]}, ensure_ascii=False)}\n\n"
         yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+
+def _build_citations(db: Session, chunks: list) -> list[dict]:
+    """组装引用列表（同步函数，供 to_thread 调用；chunks 数量小，DB 直查）"""
+    citations = []
+    for c in chunks:
+        doc = db.get(Document, c.doc_id)
+        citations.append(
+            {
+                "doc_id": c.doc_id,
+                "doc_name": doc.name if doc else f"文档{c.doc_id}",
+                "content": c.content,  # 完整内容（LLM prompt 用）
+                "snippet": c.content[:200],  # 截断片段（前端展示用）
+                "page_no": c.page_no,
+                "heading": (c.meta or {}).get("heading"),
+                "chunk_id": c.id,
+            }
+        )
+    return citations
 
 
 @router.post("/conversations/{conv_id}/ask")
@@ -249,10 +299,12 @@ async def ask(
     conv = db.get(Conversation, conv_id)
     if conv is None or conv.user_id != user_id:
         raise HTTPException(404, "会话不存在")
+    reserved = False
     if not body.search_only:
-        _check_quota(db, user_id)
+        _reserve_quota(db, user_id)
+        reserved = True
     return StreamingResponse(
-        _ask_stream(db, conv.id, user_id, body.question, body.search_only),
+        _ask_stream(db, conv.id, user_id, body.question, body.search_only, reserved=reserved),
         media_type="text/event-stream",
     )
 
@@ -282,7 +334,7 @@ async def regenerate(
     # 删除旧回答（其反馈随外键级联删除），提问保留
     db.delete(msgs[-1])
     db.commit()
-    _check_quota(db, user_id)
+    _reserve_quota(db, user_id)
     # 剔除从该提问起的历史（避免与当前问题重复）；正常情况只剔除提问本身 1 条
     remain_ids = (
         db.execute(select(Message.id).where(Message.conversation_id == conv_id))
@@ -294,14 +346,10 @@ async def regenerate(
         _ask_stream(
             db, conv.id, user_id, question,
             search_only=False, add_user_msg=False, history_cut=history_cut,
+            reserved=True,
         ),
         media_type="text/event-stream",
     )
-
-
-def _doc_name(db: Session, doc_id: int) -> str:
-    doc = db.get(Document, doc_id)
-    return doc.name if doc else f"文档{doc_id}"
 
 
 def _history(db: Session, conv_id: int) -> list[dict]:
@@ -326,8 +374,4 @@ def _save_pair(db: Session, conv_id: int, conv_user_id: str, conv_title: str, qu
         c = db.get(Conversation, conv_id)
         if c is not None:
             c.title = question[:20]
-    # 扣额度
-    user = db.get(User, conv_user_id)
-    if user is not None:
-        user.quota_used = (user.quota_used or 0) + 1
     db.commit()

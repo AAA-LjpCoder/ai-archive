@@ -18,6 +18,10 @@ logger = logging.getLogger(__name__)
 # 2026-09-07 实测：PaddleOCR-VL-1.5 在硅基流动输出乱码、DeepSeek-OCR 空响应；
 # Qwen3-VL-8B 识别准确（中英文文档/截图）→ 定为主模型
 OCR_MODEL = "Qwen/Qwen3-VL-8B-Instruct"
+# 备用模型：主模型连续失败时降级（更强的 32B，代价是更慢）
+OCR_FALLBACK_MODEL = "Qwen/Qwen3-VL-32B-Instruct"
+# 每个模型最多尝试次数（主模型 2 次，应对上游偶发 500）
+OCR_RETRY = {"Qwen/Qwen3-VL-8B-Instruct": 2, "Qwen/Qwen3-VL-32B-Instruct": 1}
 OCR_PROMPT = (
     "你是文档 OCR 引擎。请完整识别图片中的所有文字内容，"
     "保留原有段落结构、标题层级和表格结构（表格用 | 分隔单元格）。"
@@ -44,19 +48,16 @@ def _mime_from_bytes(image_bytes: bytes) -> str:
     return "image/png"
 
 
-def ocr_image(image_bytes: bytes, timeout: float = 60.0) -> str:
-    """同步 OCR 单张图片，返回识别文本；失败抛异常由调用方兜底"""
-    if not settings.embedding_api_key:
-        raise RuntimeError("未配置 API KEY，无法 OCR")
-    url = f"{settings.embedding_base_url.rstrip('/')}/chat/completions"  # 同硅基流动
+def _ocr_once(model: str, image_bytes: bytes, mime: str, timeout: float) -> str:
+    """单次调用，返回识别文本；空文本视为失败（由调用方重试/降级）"""
+    url = f"{settings.embedding_base_url.rstrip('/')}/chat/completions"
     payload = {
-        "model": OCR_MODEL,
+        "model": model,
         "messages": [
             {
                 "role": "user",
                 "content": [
-                    {"type": "image_url",
-                     "image_url": {"url": _data_uri(image_bytes, _mime_from_bytes(image_bytes))}},
+                    {"type": "image_url", "image_url": {"url": _data_uri(image_bytes, mime)}},
                     {"type": "text", "text": OCR_PROMPT},
                 ],
             }
@@ -73,19 +74,40 @@ def ocr_image(image_bytes: bytes, timeout: float = 60.0) -> str:
         return resp.json()["choices"][0]["message"]["content"].strip()
 
 
-async def ocr_image_async(image_bytes: bytes, timeout: float = 60.0) -> str:
-    """异步 OCR（后端解析任务用）"""
+def ocr_image(image_bytes: bytes, timeout: float = 90.0) -> str:
+    """OCR 单张图片：主模型重试 → 备用模型降级；全部失败抛异常由调用方兜底
+
+    2026-09-07 硅基流动出现偶发 500：主模型重试 1 次再换 32B，避免用户上传必失败。
+    """
+    import time
+
     if not settings.embedding_api_key:
         raise RuntimeError("未配置 API KEY，无法 OCR")
+    mime = _mime_from_bytes(image_bytes)
+    last_err: Exception | None = None
+    for model, attempts in OCR_RETRY.items():
+        for i in range(attempts):
+            try:
+                text = _ocr_once(model, image_bytes, mime, timeout)
+                if text.strip():
+                    return text
+                last_err = RuntimeError(f"{model} 返回空文本")
+            except Exception as exc:  # noqa: BLE001
+                last_err = exc
+                logger.warning("OCR %s 第 %s 次失败: %s", model, i + 1, exc)
+            time.sleep(1.0)  # 退避
+    raise RuntimeError(f"OCR 全部失败: {last_err}") from last_err
+
+
+async def _ocr_once_async(model: str, image_bytes: bytes, mime: str, timeout: float) -> str:
     url = f"{settings.embedding_base_url.rstrip('/')}/chat/completions"
     payload = {
-        "model": OCR_MODEL,
+        "model": model,
         "messages": [
             {
                 "role": "user",
                 "content": [
-                    {"type": "image_url",
-                     "image_url": {"url": _data_uri(image_bytes, _mime_from_bytes(image_bytes))}},
+                    {"type": "image_url", "image_url": {"url": _data_uri(image_bytes, mime)}},
                     {"type": "text", "text": OCR_PROMPT},
                 ],
             }
@@ -100,6 +122,28 @@ async def ocr_image_async(image_bytes: bytes, timeout: float = 60.0) -> str:
         )
         resp.raise_for_status()
         return resp.json()["choices"][0]["message"]["content"].strip()
+
+
+async def ocr_image_async(image_bytes: bytes, timeout: float = 90.0) -> str:
+    """异步 OCR（后端解析任务用）：主模型重试 → 备用模型降级"""
+    import asyncio
+
+    if not settings.embedding_api_key:
+        raise RuntimeError("未配置 API KEY，无法 OCR")
+    mime = _mime_from_bytes(image_bytes)
+    last_err: Exception | None = None
+    for model, attempts in OCR_RETRY.items():
+        for i in range(attempts):
+            try:
+                text = await _ocr_once_async(model, image_bytes, mime, timeout)
+                if text.strip():
+                    return text
+                last_err = RuntimeError(f"{model} 返回空文本")
+            except Exception as exc:  # noqa: BLE001
+                last_err = exc
+                logger.warning("OCR(异步) %s 第 %s 次失败: %s", model, i + 1, exc)
+            await asyncio.sleep(1.0)
+    raise RuntimeError(f"OCR 全部失败: {last_err}") from last_err
 
 
 @lru_cache(maxsize=64)

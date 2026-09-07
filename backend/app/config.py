@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     # 用户模式
     single_user_openid: str = "dev_user"
 
+    # 微信登录（M2 第 6 步）
+    wechat_app_id: str = ""
+    wechat_app_secret: str = ""
+    token_secret: str = "change-me-dev-secret"  # 签名 token 用，生产必须改
+    token_ttl_days: int = 30
+
     # 业务参数
     max_file_size_mb: int = 20
     max_docs_per_user: int = 10
