@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.auth import get_current_user
 from app.config import settings
 from app.db import get_db
-from app.models import Document, User
+from app.models import Chunk, Document, User
 from app.schemas import QuotaOut
 
 router = APIRouter(prefix="/api/quota", tags=["quota"])
@@ -28,9 +28,7 @@ def get_quota(db: Session = Depends(get_db), user_id: str = Depends(get_current_
         select(func.coalesce(func.sum(Document.size), 0)).where(Document.user_id == user_id)
     ) or 0
     chunks = db.scalar(
-        select(func.count())
-        .select_from(__import__("app.models", fromlist=["Chunk"]).Chunk)
-        .where(__import__("app.models", fromlist=["Chunk"]).Chunk.user_id == user_id)
+        select(func.count()).select_from(Chunk).where(Chunk.user_id == user_id)
     ) or 0
     return QuotaOut(
         date=today, used=used, limit=settings.daily_quota_asks,

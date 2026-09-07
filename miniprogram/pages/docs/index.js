@@ -7,6 +7,8 @@ const TYPE_CLASS = {
   pptx: 'tag-type-pptx', xlsx: 'tag-type-xlsx', xls: 'tag-type-xlsx',
   epub: 'tag-type-epub', html: 'tag-type-html', htm: 'tag-type-html',
   csv: 'tag-type-csv',
+  jpg: 'tag-type-img', jpeg: 'tag-type-img', png: 'tag-type-img',
+  webp: 'tag-type-img', bmp: 'tag-type-img', gif: 'tag-type-img',
 };
 const TYPE_ICON = {
   md: { cls: 'icon-md', label: 'MD' }, markdown: { cls: 'icon-md', label: 'MD' },
@@ -18,6 +20,9 @@ const TYPE_ICON = {
   epub: { cls: 'icon-epub', label: 'EPUB' },
   html: { cls: 'icon-html', label: 'HTML' }, htm: { cls: 'icon-html', label: 'HTML' },
   csv: { cls: 'icon-csv', label: 'CSV' },
+  jpg: { cls: 'icon-img', label: 'IMG' }, jpeg: { cls: 'icon-img', label: 'IMG' },
+  png: { cls: 'icon-img', label: 'IMG' }, webp: { cls: 'icon-img', label: 'IMG' },
+  bmp: { cls: 'icon-img', label: 'IMG' }, gif: { cls: 'icon-img', label: 'IMG' },
 };
 
 Page({

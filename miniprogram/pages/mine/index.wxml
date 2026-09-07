@@ -54,5 +54,11 @@
     <view class="arrow">›</view>
   </view>
 
+  <!-- 备案信息（工信部要求：显著位置展示备案编号） -->
+  <view class="icp-bar" bindtap="copyIcp">
+    <text class="icp-text">{{icp}}</text>
+    <text class="icp-hint">点击复制 · 备案查询见工信部官网</text>
+  </view>
+
   <view class="footer">AI档案室 · 私有知识库问答</view>
 </view>

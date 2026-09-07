@@ -20,20 +20,27 @@ from app.models import Chunk
 from app.services.embedding import embedding_client
 
 RRF_K = 60.0
-_CORPUS_CACHE: dict[str, tuple[int, list[tuple[int, str]]]] = {}
+_CORPUS_CACHE: dict[str, tuple[int, int, list[tuple[int, str]]]] = {}
 
 
 def _get_corpus(db: Session, user_id: str) -> list[tuple[int, str]]:
-    """全库 chunk (id, content) 缓存（按 user_id + chunk 数失效）"""
-    n = db.scalar(select(func.count()).select_from(Chunk).where(Chunk.user_id == user_id))
+    """全库 chunk (id, content) 缓存（按 user_id + chunk 数 + id 总和失效）
+
+    只用计数做键有个盲区：删 N 个再传 N 个新文档后总数不变，
+    缓存里仍是旧文本 → 加 sum(id) 后任何增删都会改变键值。
+    """
+    n = db.scalar(select(func.count()).select_from(Chunk).where(Chunk.user_id == user_id)) or 0
+    id_sum = db.scalar(
+        select(func.coalesce(func.sum(Chunk.id), 0)).where(Chunk.user_id == user_id)
+    ) or 0
     cached = _CORPUS_CACHE.get(user_id)
-    if cached and cached[0] == n:
-        return cached[1]
+    if cached and cached[0] == n and cached[1] == id_sum:
+        return cached[2]
     rows = db.execute(
         select(Chunk.id, Chunk.content).where(Chunk.user_id == user_id)
     ).all()
     corpus = [(r[0], r[1]) for r in rows]
-    _CORPUS_CACHE[user_id] = (n, corpus)
+    _CORPUS_CACHE[user_id] = (n, id_sum, corpus)
     return corpus
 
 

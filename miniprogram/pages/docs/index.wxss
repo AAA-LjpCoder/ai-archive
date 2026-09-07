@@ -62,6 +62,7 @@
 .icon-epub { background: linear-gradient(160deg, #C084FC, #7C3AED); }
 .icon-html { background: linear-gradient(160deg, #22D3EE, #0891B2); }
 .icon-csv { background: linear-gradient(160deg, #94A3B8, #64748B); }
+.icon-img { background: linear-gradient(160deg, #2DD4BF, #0D9488); }
 
 .doc-main { flex: 1; min-width: 0; }
 .doc-name { font-size: 30rpx; font-weight: 500; margin-bottom: 6rpx; word-break: break-all; }

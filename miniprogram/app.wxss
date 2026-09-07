@@ -177,6 +177,7 @@ page {
 .tag-type-pdf { background: #FDE8E8; color: #DC2626; }
 .tag-type-docx { background: #E8EEFD; color: #1D4ED8; }
 .tag-type-txt { background: #F1F1EF; color: #6B7280; }
+.tag-type-img { background: #E0F4F2; color: #0D9488; }
 
 /* ---------- 浮动按钮 ---------- */
 .fab {

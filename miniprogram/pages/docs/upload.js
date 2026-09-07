@@ -2,7 +2,7 @@
 const api = require('../../utils/api');
 
 const IMG_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif'];
-const DOC_EXTS = ['txt', 'md', 'pdf', 'docx', 'doc', 'pptx', 'xlsx', 'xls', 'epub', 'html', 'htm', 'csv'];
+const DOC_EXTS = ['txt', 'md', 'pdf', 'docx', 'pptx', 'xlsx', 'xls', 'epub', 'html', 'htm', 'csv'];
 const MAX_SIZE = 20 * 1024 * 1024;
 
 const FORMATS = [
