@@ -8,3 +8,10 @@ data/
 
 # 微信开发者工具本地私有配置
 miniprogram/project.private.config.json
+
+# Claude Code 本地配置
+.claude/
+
+# 部署证书与私钥（含 .key，严禁入库）
+api.ai-archive.site_nginx/
+*.key
