@@ -14,8 +14,8 @@ App({
 
   // 微信登录：wx.login → 后端换 token
   // dev 后端未配 WECHAT_APP_SECRET 时返回 503 → 静默跳过（auth 层自动回落 dev_user，免登录自测）
-  ensureLogin() {
-    const cached = wx.getStorageSync('token');
+  ensureLogin(force) {
+    const cached = !force && wx.getStorageSync('token');
     if (cached) {
       this.globalData.token = cached;
       const openid = wx.getStorageSync('openid');

@@ -13,6 +13,13 @@ function authHeaders(extra) {
   return h;
 }
 
+// 清掉本地登录态（token 失效时用）：storage 和 globalData 都要清，否则下次仍会带旧 token
+function clearAuth() {
+  if (app.globalData) app.globalData.token = '';
+  wx.removeStorageSync('token');
+  wx.removeStorageSync('openid');
+}
+
 function request(path, method = 'GET', data = null, _retried = false) {
   return new Promise((resolve, reject) => {
     wx.request({
@@ -22,8 +29,9 @@ function request(path, method = 'GET', data = null, _retried = false) {
       header: authHeaders({ 'content-type': 'application/json' }),
       success: (res) => {
         if (res.statusCode === 401 && !_retried) {
-          // token 失效：重新登录后重试一次
-          app.ensureLogin().then((ok) => {
+          // token 失效：清掉过期 token，强制重新登录后重试一次
+          clearAuth();
+          app.ensureLogin(true).then((ok) => {
             if (ok) {
               request(path, method, data, true).then(resolve).catch(reject);
             } else {
@@ -51,7 +59,8 @@ function uploadFile(path, filePath, name = 'file', formData = {}, _retried = fal
       header: authHeaders(),
       success: (res) => {
         if (res.statusCode === 401 && !_retried) {
-          app.ensureLogin().then((ok) => {
+          clearAuth();
+          app.ensureLogin(true).then((ok) => {
             if (ok) {
               uploadFile(path, filePath, name, formData, true).then(resolve).catch(reject);
             } else {
@@ -112,7 +121,19 @@ function makeUtf8Decoder() {
   };
 }
 
-function streamPost(url, data, onEvent) {
+function streamPost(url, data, onEvent, _retried = false) {
+  // 收尾守卫：保证 onEvent 只收到一次 done，避免页面 sending 永久锁死
+  let finished = false;
+  let watchdog = null;
+
+  const close = (errMsg) => {
+    if (finished) return;
+    finished = true;
+    if (watchdog) clearTimeout(watchdog);
+    if (errMsg) onEvent({ type: 'error', data: errMsg });
+    onEvent({ type: 'done' });
+  };
+
   const task = wx.request({
     url: baseUrl() + url,
     method: 'POST',
@@ -121,11 +142,30 @@ function streamPost(url, data, onEvent) {
     enableChunked: true,
     success: (res) => {
       if (res.statusCode >= 300) {
-        onEvent({ type: 'error', data: res.statusCode === 401 ? '登录已过期，请重新打开小程序' : ((res.data && res.data.detail) || `HTTP ${res.statusCode}`) });
+        if (res.statusCode === 401 && !_retried) {
+          // token 失效：流式请求同样走「清缓存 + 强制重登 + 重试一次」，避免主交互卡死
+          clearAuth();
+          app.ensureLogin(true).then((ok) => {
+            if (ok) streamPost(url, data, onEvent, true);
+            else close('登录已过期，请重新打开小程序');
+          });
+          return;
+        }
+        close(res.statusCode === 401 ? '登录已过期，请重新打开小程序' : ((res.data && res.data.detail) || `HTTP ${res.statusCode}`));
+        return;
       }
+      // 连接正常结束但从未收到 done（服务端异常中断等）→ 补齐收尾
+      close(null);
     },
-    fail: (err) => onEvent({ type: 'error', data: '网络请求失败：' + err.errMsg }),
+    fail: (err) => close('网络请求失败：' + err.errMsg),
   });
+
+  // 兜底：长时间既无 done 也无 success/fail（例如卡死）→ 主动收尾
+  watchdog = setTimeout(() => {
+    if (finished) return;
+    try { task.abort(); } catch (e) { /* ignore */ }
+    close('响应超时，请重试');
+  }, 180000);
 
   // 行缓冲：SSE 帧可能跨多个网络 chunk，必须攒到完整 \n 才解析
   const decode = makeUtf8Decoder();
@@ -140,7 +180,12 @@ function streamPost(url, data, onEvent) {
       const payload = line.slice(5).trim();
       if (!payload) continue;
       try {
-        onEvent(JSON.parse(payload));
+        const evt = JSON.parse(payload);
+        if (evt && evt.type === 'done' && !finished) {
+          finished = true;
+          if (watchdog) clearTimeout(watchdog);
+        }
+        onEvent(evt);
       } catch (e) { /* 解析失败跳过（理论不应出现，缓冲已保证完整行） */ }
     }
     // 防御：异常流无限增长时兜底清空

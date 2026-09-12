@@ -9,7 +9,7 @@
       <view class="head-main">
         <view class="doc-title">{{doc.name}}</view>
         <view class="doc-meta">
-          <text class="tag {{doc.status === 'ready' ? 'tag-green' : doc.status === 'failed' ? 'tag-red' : 'tag-gold'}}">{{statusText(doc.status)}}</text>
+          <text class="tag {{doc.status === 'ready' ? 'tag-green' : doc.status === 'failed' ? 'tag-red' : 'tag-gold'}}">{{doc.status_text}}</text>
           <text class="sub-text">{{doc.size_kb}}KB · {{doc.created_at}}</text>
         </view>
       </view>

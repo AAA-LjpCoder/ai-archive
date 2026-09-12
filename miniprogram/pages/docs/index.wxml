@@ -49,7 +49,7 @@
       <view class="doc-name">{{item.name}}</view>
       <view class="doc-meta">{{item.size_kb}}KB · {{item.created_at}}</view>
       <view class="doc-status">
-        <text wx:if="{{item.status === 'processing'}}" class="tag tag-gold">{{statusText(item.status)}}</text>
+        <text wx:if="{{item.status === 'processing'}}" class="tag tag-gold">{{item.status_text}}</text>
         <view wx:if="{{item.status === 'processing'}}" class="scan-wrap"><view class="scan-bar"></view></view>
         <text wx:if="{{item.chunk_count}}" class="sub-text">{{item.chunk_count}} 块</text>
       </view>

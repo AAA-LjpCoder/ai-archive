@@ -42,6 +42,7 @@ Page({
           type_class: TYPE_CLASS[doc.type] || 'tag-type-txt',
           type_icon_cls: icon.cls,
           type_icon_label: icon.label,
+          status_text: this.statusText(doc.status),
         },
         chunks,
       });

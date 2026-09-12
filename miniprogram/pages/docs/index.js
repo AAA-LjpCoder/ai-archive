@@ -42,6 +42,7 @@ Page({
           type_icon_cls: icon.cls,
           type_icon_label: icon.label,
           anim_delay: (docs.indexOf(d) * 60) + 'ms',
+          status_text: this.statusText(d.status),
         };
       });
       this.setData({
