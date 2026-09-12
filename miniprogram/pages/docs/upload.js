@@ -50,6 +50,19 @@ Page({
         const name = sourceType === 'camera' ? `拍照_${ts}.${ext}` : `图片_${ts}.${ext}`;
         this._accept({ path, size: f.size || 0, name }, false);
       },
+      fail: (err) => this._pickFail(err),
+    });
+  },
+
+  // 选择失败时把真实原因弹出来（隐私授权未声明时原来会“无反应”）
+  _pickFail(err) {
+    const msg = (err && err.errMsg) || '未知错误';
+    if (/cancel/i.test(msg)) return;
+    wx.showModal({
+      title: '打不开选择器',
+      content: msg + '\n\n若提到隐私授权，请到微信公众平台「设置 → 服务内容声明 → 用户隐私保护指引」勾选「收集你选中的照片或视频信息」。',
+      showCancel: false,
+      confirmText: '知道了',
     });
   },
 
@@ -63,6 +76,7 @@ Page({
         if (!f) return;
         this._accept({ path: f.path, size: f.size || 0, name: f.name || '' }, true);
       },
+      fail: (err) => this._pickFail(err),
     });
   },
 

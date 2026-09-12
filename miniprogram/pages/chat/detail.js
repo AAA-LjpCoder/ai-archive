@@ -37,7 +37,7 @@ Page({
   onInput(e) { this.setData({ input: e.detail.value }); },
   toggleSearchOnly(e) { this.setData({ searchOnly: e.detail.value }); },
 
-  // ---- 会话框附件：图/文件 → 入库 → 自动开单文档会话 ----
+  // ---- 会话框附件：图/文件 → 入库后**留在当前会话**继续聊 ----
   attachTap() {
     if (this.data.sending) return;
     wx.showActionSheet({
@@ -59,6 +59,7 @@ Page({
           const f = r.tempFiles[0];
           if (f) this._uploadAttach(f.path, f.name || '', f.size || 0);
         },
+        fail: (err) => this._pickFail(err),
       });
       return;
     }
@@ -78,6 +79,19 @@ Page({
         const name = `${source === 'camera' ? '拍照' : '图片'}_${ts}.${ext}`;
         this._uploadAttach(f.tempFilePath, name, f.size || 0);
       },
+      fail: (err) => this._pickFail(err),
+    });
+  },
+
+  // 选择失败时把真实原因弹出来（隐私授权未声明时原来会“无反应”）
+  _pickFail(err) {
+    const msg = (err && err.errMsg) || '未知错误';
+    if (/cancel/i.test(msg)) return; // 用户主动取消，不打扰
+    wx.showModal({
+      title: '打不开选择器',
+      content: msg + '\n\n若提到隐私授权，请到微信公众平台「设置 → 服务内容声明 → 用户隐私保护指引」勾选「收集你选中的照片或视频信息」。',
+      showCancel: false,
+      confirmText: '知道了',
     });
   },
 
@@ -89,18 +103,19 @@ Page({
     wx.showLoading({ title: '上传入库中…' });
     try {
       const doc = await api.uploadFile('/api/docs/upload', path, 'file', { filename: name });
-      wx.showLoading({ title: '创建会话…' });
-      const conv = await api.request('/api/conversations', 'POST', {
-        mode: 'doc',
-        doc_id: doc.id,
-        title: doc.name,
-      });
       wx.hideLoading();
-      wx.showToast({ title: '已入库，识别完成即可提问', icon: 'none' });
-      setTimeout(
-        () => wx.redirectTo({ url: `/pages/chat/detail?id=${conv.id}&mode=doc` }),
-        900
-      );
+      if (this.data.mode === 'doc') {
+        // 单文档会话：新内容不在此会话检索范围内，明确说明，不强行跳转
+        wx.showModal({
+          title: '已入库',
+          content: `「${doc.name}」已加入文档库。当前是单文档会话，只检索原来的文档；要针对新内容提问，可去「文档库」点它的「针对此文档提问」。`,
+          showCancel: false,
+          confirmText: '知道了',
+        });
+      } else {
+        // 全局会话：直接留在本会话，识别完成后全局检索就能命中新内容
+        wx.showToast({ title: '已入库，识别完成后即可提问', icon: 'none' });
+      }
     } catch (e) {
       wx.hideLoading();
       wx.showToast({ title: (e && e.message) || '上传失败', icon: 'none' });
