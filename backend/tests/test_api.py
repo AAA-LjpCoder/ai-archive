@@ -20,7 +20,10 @@ os.environ["DATABASE_URL"] = (
     )
 )
 
+from app.config import settings  # noqa: E402
 from app.main import app  # noqa: E402
+
+DIM = settings.embedding_dim  # 假向量的维度必须与 chunks.embedding 列一致（BGE-M3=1024）
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +55,7 @@ def test_upload_txt_and_process(client, monkeypatch):
     import app.services.processor as processor_mod
     from app.services import embedding as emb_mod
 
-    fake_emb = [[0.1] * 4096, [0.2] * 4096]
+    fake_emb = [[0.1] * DIM, [0.2] * DIM]
     monkeypatch.setattr(
         processor_mod.embedding_client, "embed_texts", lambda texts, batch_size=16: fake_emb[: len(texts)]
     )
@@ -84,7 +87,7 @@ def test_upload_txt_and_process(client, monkeypatch):
     # chunks 可查
     r = client.get(f"/api/docs/{doc_id}/chunks")
     assert r.status_code == 200
-    assert len(r.json()) == r.json() and len(r.json()) >= 1
+    assert len(r.json()) >= 1
 
     # 删除
     r = client.delete(f"/api/docs/{doc_id}")
@@ -107,9 +110,9 @@ def test_conversation_and_ask_search_only(client, monkeypatch):
     from app.services import retrieval as retr_mod
     from app.services import processor as processor_mod
 
-    fake_emb = [[0.15] * 4096] * 20
+    fake_emb = [[0.15] * DIM] * 20
     monkeypatch.setattr(processor_mod.embedding_client, "embed_texts", lambda texts, batch_size=16: fake_emb[: len(texts)])
-    monkeypatch.setattr(emb_mod.embedding_client, "embed_one", lambda text: [0.1] * 4096)
+    monkeypatch.setattr(emb_mod.embedding_client, "embed_one", lambda text: [0.1] * DIM)
 
     # 准备一个文档
     content = "# 面试知识\n\nRAG 是检索增强生成，用于基于私有文档问答。"
