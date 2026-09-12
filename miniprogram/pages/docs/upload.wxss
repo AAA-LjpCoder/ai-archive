@@ -75,3 +75,5 @@
 .fd-jpg { background: #0EA5A4; }
 .fd-png { background: #65A30D; }
 .fmt-name { font-size: 24rpx; color: #57534A; }
+
+.src-hint { margin: -8rpx 0 24rpx; line-height: 1.6; }

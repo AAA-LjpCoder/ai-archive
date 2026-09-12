@@ -41,7 +41,7 @@ Page({
   attachTap() {
     if (this.data.sending) return;
     wx.showActionSheet({
-      itemList: ['拍照上传', '相册图片上传', '聊天选择文件'],
+      itemList: ['拍照', '相册图片', '聊天文件（文档先发传输助手）'],
       success: (res) => {
         if (res.tapIndex === 0) this._pickAndUpload('camera');
         else if (res.tapIndex === 1) this._pickAndUpload('album');

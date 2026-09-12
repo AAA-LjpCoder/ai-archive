@@ -6,6 +6,7 @@
       <view class="src-btn" bindtap="pickFromAlbum">🖼 相册图片</view>
       <view class="src-btn" bindtap="chooseFile">💬 聊天文件</view>
     </view>
+    <view class="sub-text src-hint">手机端传文档：先在微信里把文件发给「文件传输助手」，再点「聊天文件」选它（小程序无法直接读取手机本地文件）。图片可直接用「相册 / 拍照」。</view>
 
     <view class="file-box" bindtap="chooseFile">
       <view wx:if="{{!fileName}}" class="file-empty">
@@ -27,7 +28,7 @@
       {{uploading ? '上传解析中…' : '开始上传'}}
     </view>
     <view class="sub-text tips">
-      上传后自动解析建索引，处理完成即可提问。拍照/相册/聊天里的图片也能直接识别文字入库。
+      上传后自动解析建索引，处理完成即可提问。图片（拍照/相册/聊天）也能直接识别文字入库。
     </view>
   </view>
 

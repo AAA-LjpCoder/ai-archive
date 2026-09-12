@@ -86,10 +86,7 @@ Page({
     const isImage = IMG_EXTS.includes(ext);
     const isDoc = DOC_EXTS.includes(ext);
     if (!isImage && !(allowDoc && isDoc)) {
-      wx.showToast({
-        title: isDoc ? '请用「聊天文件」外的来源选择文档' : '不支持该格式（文档或 jpg/png 图片）',
-        icon: 'none',
-      });
+      wx.showToast({ title: '不支持该格式（支持文档或 jpg/png 图片）', icon: 'none' });
       return;
     }
     if (f.size > MAX_SIZE) {
