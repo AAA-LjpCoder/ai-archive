@@ -7,7 +7,7 @@ from functools import partial
 import anyio
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from sqlalchemy import exists, or_, select
+from sqlalchemy import exists, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
@@ -155,7 +155,9 @@ def _reserve_quota(db: Session, user_id: str) -> None:
     流正常完成则保留扣减；无内容/异常由 _refund_quota 回补。
     """
     today = date.today().isoformat()
-    user = db.get(User, user_id)
+    user = db.execute(
+        select(User).where(User.openid == user_id).with_for_update()
+    ).scalar_one_or_none()
     if user is None:
         user = User(openid=user_id, quota_date=today, quota_used=0)
         db.add(user)
@@ -188,6 +190,7 @@ async def _ask_stream(
     add_user_msg: bool = True,
     history_cut: int = 0,
     reserved: bool = False,
+    drop_message_id: int | None = None,
 ) -> AsyncGenerator[str, None]:
     """问答 SSE 事件流（ask 与 regenerate 共用）。
 
@@ -235,6 +238,7 @@ async def _ask_stream(
             _save_pair(
                 db, conv_id_v, conv_user_id_v, conv_title_v,
                 question, answer, citations, add_user_msg=add_user_msg,
+                drop_message_id=drop_message_id,
             )
             return
         if not citations:
@@ -246,6 +250,7 @@ async def _ask_stream(
             _save_pair(
                 db, conv_id_v, conv_user_id_v, conv_title_v,
                 question, answer, citations, add_user_msg=add_user_msg,
+                drop_message_id=drop_message_id,
             )
             return
 
@@ -263,6 +268,7 @@ async def _ask_stream(
         _save_pair(
             db, conv_id_v, conv_user_id_v, conv_title_v,
             question, answer, citations, add_user_msg=add_user_msg,
+            drop_message_id=drop_message_id,
         )
     except Exception as exc:  # noqa: BLE001
         _refund()
@@ -331,11 +337,10 @@ async def regenerate(
     if qmsg is None:
         raise HTTPException(400, "找不到对应的提问")
     question = qmsg.content
-    # 删除旧回答（其反馈随外键级联删除），提问保留
-    db.delete(msgs[-1])
-    db.commit()
+    # 先预扣额度（用完抛 429，旧回答尚未删除）；旧回答留到新回答生成成功后由 _save_pair 替换
     _reserve_quota(db, user_id)
-    # 剔除从该提问起的历史（避免与当前问题重复）；正常情况只剔除提问本身 1 条
+    old_msg_id = msgs[-1].id
+    # 剔除从该提问起的历史（含旧回答，避免与当前问题重复）
     remain_ids = (
         db.execute(select(Message.id).where(Message.conversation_id == conv_id))
         .scalars()
@@ -346,7 +351,7 @@ async def regenerate(
         _ask_stream(
             db, conv.id, user_id, question,
             search_only=False, add_user_msg=False, history_cut=history_cut,
-            reserved=True,
+            reserved=True, drop_message_id=old_msg_id,
         ),
         media_type="text/event-stream",
     )
@@ -361,7 +366,7 @@ def _history(db: Session, conv_id: int) -> list[dict]:
     return [{"role": m.role, "content": m.content} for m in msgs]
 
 
-def _save_pair(db: Session, conv_id: int, conv_user_id: str, conv_title: str, question: str, answer: str, citations: list, add_user_msg: bool = True) -> None:
+def _save_pair(db: Session, conv_id: int, conv_user_id: str, conv_title: str, question: str, answer: str, citations: list, add_user_msg: bool = True, drop_message_id: int | None = None) -> None:
     if add_user_msg:
         db.add(Message(conversation_id=conv_id, user_id=conv_user_id, role="user", content=question))
     db.add(
@@ -370,8 +375,15 @@ def _save_pair(db: Session, conv_id: int, conv_user_id: str, conv_title: str, qu
             content=answer, citations=citations or None,
         )
     )
-    if conv_title == "新会话":
-        c = db.get(Conversation, conv_id)
-        if c is not None:
-            c.title = question[:20]
+    # 重新生成场景：新回答落库后，同一事务内删除被替换的旧回答（失败则旧回答不丢）
+    if drop_message_id is not None:
+        old = db.get(Message, drop_message_id)
+        if old is not None:
+            db.delete(old)
+    # 会话列表按 updated_at 排序：每次落消息都把会话时间顶到最新（原来仅在改标题时更新，聊过的会话不会上浮）
+    conv = db.get(Conversation, conv_id)
+    if conv is not None:
+        if conv_title == "新会话":
+            conv.title = question[:20]
+        conv.updated_at = func.now()
     db.commit()
