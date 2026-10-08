@@ -237,10 +237,56 @@ Page({
     const { msgidx, val } = e.currentTarget.dataset;
     const msg = this.data.messages[msgidx];
     if (!msg || msg.role !== 'assistant' || typeof msg.id !== 'number') return;
-    const next = msg.feedback === val ? null : val;
-    api.request(`/api/messages/${msg.id}/feedback`, 'PUT', { value: next })
-      .then(() => this.setData({ [`messages[${msgidx}].feedback`]: next }))
-      .catch((err) => wx.showToast({ title: err.message, icon: 'none' }));
+
+    // 已点过「踩」再点一次 = 取消，不弹 action sheet，也不弹重新生成引导
+    const cancel = msg.feedback === 'dislike' && val === 'dislike';
+    if (val === 'dislike' && !cancel) {
+      wx.showActionSheet({
+        itemList: ['答非所问', '没找到相关内容', '回答不准确', '其他'],
+        success: (res) => {
+          const reason = ['off_topic', 'not_found', 'inaccurate', 'other'][res.tapIndex];
+          this._saveFeedback(msgidx, 'dislike', reason).then((ok) => {
+            if (ok && msgidx === this.data.messages.length - 1 && !this.data.sending) {
+              this._offerRegen();
+            }
+          });
+        },
+        fail: () => {},
+      });
+      return;
+    }
+
+    const next = cancel ? null : (msg.feedback === 'like' ? null : 'like');
+    this._saveFeedback(msgidx, next, null);
+  },
+
+  _saveFeedback(msgidx, value, reason) {
+    const msg = this.data.messages[msgidx];
+    return api
+      .request(`/api/messages/${msg.id}/feedback`, 'PUT', { value, reason })
+      .then(() => {
+        this.setData({
+          [`messages[${msgidx}].feedback`]: value,
+          [`messages[${msgidx}].reason`]: value === 'dislike' ? reason : null,
+        });
+        return true;
+      })
+      .catch((err) => {
+        wx.showToast({ title: err.message, icon: 'none' });
+        return false;
+      });
+  },
+
+  _offerRegen() {
+    wx.showModal({
+      title: '这条不太行？',
+      content: '要不要重新生成？（会消耗一轮问答额度）',
+      confirmText: '重新生成',
+      confirmColor: '#146B5A',
+      success: (res) => {
+        if (res.confirm) this.doRegenerate();
+      },
+    });
   },
 
   copyAnswer(e) {
