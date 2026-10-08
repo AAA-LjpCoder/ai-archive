@@ -4,7 +4,7 @@ const api = require('../../utils/api');
 Page({
   data: {
     quota: null,
-    // TODO: 替换为实际 ICP 备案号（腾讯云控制台可查，格式：冀ICP备2026033522号）
+    // ICP 备案号（工信部要求显著展示）
     icp: '冀ICP备2026033522号'
   },
 
