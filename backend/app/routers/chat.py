@@ -100,9 +100,11 @@ def get_messages(
             .scalars()
             .all()
         )
-        fb_map = {f.message_id: f.value for f in fb_rows}
+        fb_map = {f.message_id: f for f in fb_rows}
         for m in msgs:
-            m.feedback = fb_map.get(m.id)
+            row = fb_map.get(m.id)
+            m.feedback = row.value if row else None
+            m.reason = row.reason if row else None
     return msgs
 
 
@@ -127,13 +129,19 @@ def set_feedback(
         if row is not None:
             db.delete(row)
             db.commit()
-        return {"ok": True, "value": None}
+        return {"ok": True, "value": None, "reason": None}
+    reason = body.reason if body.value == "dislike" else None
     if row is None:
-        db.add(MessageFeedback(message_id=message_id, user_id=user_id, value=body.value))
+        db.add(
+            MessageFeedback(
+                message_id=message_id, user_id=user_id, value=body.value, reason=reason
+            )
+        )
     else:
         row.value = body.value
+        row.reason = reason
     db.commit()
-    return {"ok": True, "value": body.value}
+    return {"ok": True, "value": body.value, "reason": reason}
 
 
 @router.delete("/conversations/{conv_id}")
