@@ -30,9 +30,9 @@ class Settings(BaseSettings):
 
     # Embedding（OpenAI 兼容）
     embedding_api_key: str = ""
-    embedding_base_url: str = "https://api.siliconflow.cn/v1"
-    embedding_model: str = "BAAI/bge-m3"
-    embedding_dim: int = 1024  # BGE-M3 1024 维（hnsw 上限 2000）
+    embedding_base_url: str = "https://open.bigmodel.cn/api/paas/v4"  # 智谱（2026-10-08 从硅基流动迁移）
+    embedding_model: str = "embedding-3"
+    embedding_dim: int = 1024  # 向量维度（hnsw 上限 2000）；embedding-3 需显式传 dimensions
 
     # 文件存储
     upload_dir: Path = BASE_DIR / "data" / "uploads"
@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     big_block_size: int = 2000 # 大块上限字数
     retrieval_top_k: int = 20  # 向量/BM25 各自取前 K
     rerank_top_n: int = 6      # MMR 重排后保留 N 个片段
+    rerank_model: str = "rerank"  # 精排模型（智谱 rerank；原 BAAI/bge-reranker-v2-m3）
     retrieval_candidate_pool: int = 60  # v2：向量/BM25 候选池（召回）
     rerank_input_n: int = 30            # v2：送精排的候选数
     max_answer_chars: int = 800

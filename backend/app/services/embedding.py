@@ -20,7 +20,8 @@ class EmbeddingClient:
                 batch = texts[i : i + batch_size]
                 resp = client.post(
                     f"{self.base_url}/embeddings",
-                    json={"model": self.model, "input": batch},
+                    json={"model": self.model, "input": batch,
+                          "dimensions": settings.embedding_dim},
                     headers={"Authorization": f"Bearer {self.api_key}"},
                 )
                 resp.raise_for_status()

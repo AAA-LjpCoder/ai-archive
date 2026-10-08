@@ -107,7 +107,7 @@ def _mmr_rerank(chunks: list[Chunk], scores: list[float], top_n: int,
 
 
 def _rerank_api(query: str, documents: list[str], top_n: int) -> list[int] | None:
-    """bge-reranker-v2-m3（硅基流动），返回按相关性排序的 documents 下标"""
+    """精排模型（智谱 rerank），返回按相关性排序的 documents 下标"""
     import httpx
 
     api_key = settings.embedding_api_key  # 复用硅基流动 key
@@ -118,7 +118,7 @@ def _rerank_api(query: str, documents: list[str], top_n: int) -> list[int] | Non
         with httpx.Client(timeout=30) as client:
             resp = client.post(
                 url,
-                json={"model": "BAAI/bge-reranker-v2-m3", "query": query,
+                json={"model": settings.rerank_model, "query": query,
                       "documents": documents, "top_n": top_n},
                 headers={"Authorization": f"Bearer {api_key}"},
             )
