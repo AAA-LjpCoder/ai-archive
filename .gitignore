@@ -15,3 +15,6 @@ miniprogram/project.private.config.json
 # 部署证书与私钥（含 .key，严禁入库）
 api.ai-archive.site_nginx/
 *.key
+
+# 作品材料（文章草稿，不随仓库公开）
+作品材料/
