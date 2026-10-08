@@ -70,7 +70,7 @@ flowchart TB
 
 | 亮点 | 说明 |
 |------|------|
-| **混合检索 + 精排** | 全库 BM25 与向量召回各自 top-K → RRF 融合 → reranker 精排 → top-N。自建 **golden QA（30+ 条）** 评测：**Recall@6 ≈ 91%** |
+| **混合检索 + 精排** | 全库 BM25 与向量召回各自 top-K → RRF 融合 → reranker 精排 → top-N。自建 **golden QA（34 条）** 评测：**Recall@6 = 91.2%**（详见 [docs/eval](docs/eval/README.md)） |
 | **结构感知分块** | mistune / python-docx 解析标题层级，块携带「标题路径」上下文；代码块 / 表格整体保留 |
 | **多格式解析全量** | txt/md/pdf/docx/pptx/xlsx/epub/html/csv + **扫描件/图片 OCR 兜底**（长图按截断自适应切分再合并） |
 | **可靠性工程** | SSE 流式收尾守卫 + 看门狗；额度预扣/回补防刷；鉴权 **fail-closed**（非 dev 一律要 token）；幂等启动迁移 |
